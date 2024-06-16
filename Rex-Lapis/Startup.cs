@@ -4,11 +4,21 @@ global using Discord.WebSocket;
 
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices.Marshalling;
 using DiscordNetTemplate.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using Serilog;
+DiscordSocketClient client = new DiscordSocketClient(            
+    new DiscordSocketConfig
+            {
+                GatewayIntents = GatewayIntents.All,
+                FormatUsersInBidirectionalUnicode = false,
+                AlwaysDownloadUsers = true,
+                LogGatewayIntentWarnings = false,
+                LogLevel = LogSeverity.Info
+            });
 
 
     var builder = new HostBuilder();
@@ -26,15 +36,8 @@ using Serilog;
     {
         services.AddLogging(options => options.AddSerilog(loggerConfig, dispose: true));
 
-        services.AddSingleton(new DiscordSocketClient(
-            new DiscordSocketConfig
-            {
-                GatewayIntents = GatewayIntents.All,
-                FormatUsersInBidirectionalUnicode = false,
-                AlwaysDownloadUsers = true,
-                LogGatewayIntentWarnings = false,
-                LogLevel = LogSeverity.Info
-            }));
+
+        services.AddSingleton(client);
 
         services.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>(), new InteractionServiceConfig()
         {

@@ -1,9 +1,10 @@
-//using Discord.Interactions;
+//This has been last updated v.4.3
+
 using Discord;
 using Discord.Interactions;
 using System;
-using System.Runtime.CompilerServices;
 
+//Note to self, the three Locus in Enkanomiya don't reach back to the main land.    
 public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("travel", "Rex Lapis prompts the user with a journey.")]
@@ -18,7 +19,7 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
             " whilst enjoying the scenery along the way to ",
             " and all the while enjoy roaming to ",
             " and relax during a trek for ",
-            " during which I should be in awe on my way to "};
+            " during which I sauntered my way to "};
 
             Emoji geoEmote = new Emoji("<:Geo:1158853006364774491>");
 
@@ -51,8 +52,10 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
             if(startNum1 == 0){
                 startNum1 = number.Next(0, Inazuma.Length);
                 //If `num` is 6, then Enkanomiya is picked. If Enkanomiya is picked, then the `end` is also in Enkanomiya.
+                //I also ensure that none of the isolated islands are picked as starting points.
                 if(startNum1 == 6){
-                    start = EnkanomiyaRegion.choose();
+                    //`choose` with an integer argument will exclude `integer` amount of objects at the end of the list.
+                    start = EnkanomiyaRegion.choose(3);
                     end = EnkanomiyaRegion.choose();
 
                     await RespondAsync(beginning + start + middle + end + "." + final + geoEmote);
@@ -257,7 +260,7 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
     Location EnkanomiyaRegion =
         new Location("Inazuma",
         "Enkanomiya",
-        ["Dainichi Mikoshi", "The Serpent's Bowels", "Evernight Temple", "The Serpent's Heart", "Kunado's Locus", "Yachimatahiko's Locus", "The Narrows", "Yachimatahime's Locus"],
+        ["Dainichi Mikoshi", "The Serpent's Bowels", "Evernight Temple", "The Serpent's Heart", "The Narrows", "Kunado's Locus", "Yachimatahiko's Locus", "Yachimatahime's Locus"],
         ["Sango Pearl", "Sea Ganoderma"]);
 
 //Sumeru

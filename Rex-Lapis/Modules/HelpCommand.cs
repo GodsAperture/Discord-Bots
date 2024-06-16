@@ -25,7 +25,7 @@ public class HelpCommand : InteractionModuleBase<SocketInteractionContext>{
 
     private static string[] End = {
         "```\n\tI sincerely hope that this was of utmost help to you.\n\t\tSigned, `Rex Lapis` ",
-        "```\n\tWe at Liyue Harbor are all here to be of support to you.\n\t\tSigned, `Rex Lapis` ",
+        "```\n\tWe, at Liyue Harbor, are all here to be of support to you.\n\t\tSigned, `Rex Lapis` ",
         "```\n\tEvery journey has its final day. Don't rush.\n\t\tSigned, `Rex Lapis` ",
         "```\n\tPlease, enjoy your time at the harbor as we all have.\n\t\tSigned, `Rex Lapis` "
     };

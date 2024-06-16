@@ -19,9 +19,11 @@ public class Location{
     }
 
     public string choose(){
-
         return sublocation[number.Next(0, sublocation.Length - 1)];
-        
+    }
+
+    public string choose(int num){
+        return sublocation[number.Next(0, sublocation.Length - 1 - num)];
     }
 
     public string getPlace(){
