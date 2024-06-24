@@ -8,6 +8,7 @@ using System.Runtime.InteropServices.Marshalling;
 using DiscordNetTemplate.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
 
 using Serilog;
 DiscordSocketClient client = new DiscordSocketClient(            
@@ -17,11 +18,13 @@ DiscordSocketClient client = new DiscordSocketClient(
                 FormatUsersInBidirectionalUnicode = false,
                 AlwaysDownloadUsers = true,
                 LogGatewayIntentWarnings = false,
-                LogLevel = LogSeverity.Info
+                LogLevel = LogSeverity.Info,
+                UseInteractionSnowflakeDate = false
             });
 
 
     var builder = new HostBuilder();
+
 
     builder.ConfigureAppConfiguration(options
         => options.AddJsonFile("appsettings.json")
@@ -36,13 +39,14 @@ DiscordSocketClient client = new DiscordSocketClient(
     {
         services.AddLogging(options => options.AddSerilog(loggerConfig, dispose: true));
 
-
         services.AddSingleton(client);
 
         services.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>(), new InteractionServiceConfig()
         {
             LogLevel = LogSeverity.Info
         }));
+
+        services.AddDbContextFactory<UserDB>(options => options.UseSqlite(Path.Combine("Users","UserInfo.db")));
 
         services.AddSingleton<InteractionHandler>();
 

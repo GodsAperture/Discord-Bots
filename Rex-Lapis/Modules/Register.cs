@@ -60,7 +60,7 @@ public class RegisterCommand : InteractionModuleBase<SocketInteractionContext>{
             };
 
 
-            string filePath = Path.Combine(folderPath, GUID.ToString() + ".csv");
+            string filePath = Path.Combine(folderPath, GUID.ToString() + ".lsv");
 
             //If the file using that UID already exists, then notify the user.
             //Otherwise, generate an empty file named after the GUID.
@@ -69,8 +69,12 @@ public class RegisterCommand : InteractionModuleBase<SocketInteractionContext>{
                 return;
             } else {
                 //Apparently creating the file doesn't just create it. It opens it. Today I learned.
-                
+                //I append 7 lines to the file to represent the 7 elements of Genshin.
+                //Each line will contain characters of a particular element.
                 File.Create(filePath).Close();
+                StreamWriter temp = new StreamWriter(filePath);
+                temp.Write("\n\n\n\n\n\n");
+                temp.Close();
                 await RespondAsync(SuccessResponse[number.Next(0, SuccessResponse.Length)] + final + geoEmote, ephemeral: true);
 
                 return;

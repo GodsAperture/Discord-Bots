@@ -48,6 +48,7 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
         };
         //In case someone has no accounts, this will prevent any weird edge case behavior.
         string[] nullList = {
+            "Excuse me " + Context.User.GlobalName + ", but you haven't registered with us before.",
             "Ahem, " + Context.User.GlobalName + ", it seems you haven't registered any accounts.",
             "Pardon me " + Context.User.GlobalName + ", but you have no accounts with the Adventurer's Guild.",
             "There seems to be a mistake " + Context.User.GlobalName + ", you haven't added any accounts to our data base."
@@ -76,7 +77,7 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
 
             //Add all available files to the options list with server identification.
             for(int i = 0; i < allProfiles.Length; i++){
-                menu.AddOption(serverType(allProfiles[i]), allProfiles[i], description: "UID: " + allProfiles[i]);
+                menu.AddOption(allProfiles[i], allProfiles[i], description: "UID: " + serverType(allProfiles[i]));
             }
 
             //Finalize the creation of the drop down menu.
@@ -97,6 +98,8 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
     [ComponentInteraction("pick")]
     public async Task MenuHandler(string[] input){
         string[] characters = File.ReadAllLines(Path.Combine("Users", Context.User.Id.ToString(), input[0] + ".csv"));
+
+////TODO: Fix this, so that each line is broken down into a list of characters. 
         //`list` will be the list of characters, and will be sent to the user in the form `first + list + end`.
         string list = "";
         int[] num = new int[4];
