@@ -1,25 +1,27 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-[Table("Users")]
-public class UserInfo
-{
+[Table("UserInfo")]
+public class UserInfo{
     [Key]
-    [Column("GenshinId")]
-    ulong GenshinId { get; set; }
-    
     [Column("DiscordId")]
-    ulong DiscordId { get; set; }
-    
-    public ICollection<CharacterInfo> Characters { get; } = [];
+    long DiscordId { get; set; }
+
+    [Column("GenshinId")]
+    int[] GenshinId { get; set; } = [];
 }
 
-[Table("Characters")]
-public class CharacterInfo
-{
-  [Column("Id")]
+[Table("CharacterInfo")]
+public class CharacterInfo{
   [Key]
-  int SomeUniqueId { get; set; }
+  [Column("GenshinId")]
+  int GenshinId { get; set; }
+
+  [Column("DiscordId")]
+  long DiscordId {get; set; }
+
+  [Column("Characters")]
+  string[] Characters { get; set; } = [];
 
   public UserInfo User { get; set; } = new UserInfo();
 }

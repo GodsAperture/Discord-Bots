@@ -5,10 +5,10 @@ using Discord.Interactions;
 using System;
 
 //Note to self, the three Locus in Enkanomiya don't reach back to the main land.    
-public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
+public class TravelClass : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("travel", "Rex Lapis prompts the user with a journey.")]
-    public async Task ExecuteCommandAsync(){
+    public async Task TravelCommand(){
         try{
             string start;
             string end;
@@ -35,7 +35,7 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
 
             //Combine all locations into regions, except for Sumeru. Sumeru is divided into desert and forest.
             Location[] Monstadt = {BrightcrownMountains, Dragonspine, GalesongHill, StarfellValley, WindwailHighland};
-            Location[] Liyue = {BishuiPlain, Lisha, Minlin, QiongjiEstuary, SeaOfClouds, TheChasmAboveGround, TheChasmUnderground};
+            Location[] Liyue = {BishuiPlain, Lisha, Minlin, QiongjiEstuary, SeaOfClouds, TheChasmAboveGround, TheChasmUnderground, ChenyuValeSouth, ChenyuValueUpperVale, MtLaixin};
             Location[] Inazuma = {Kannazuka, NarukamiIsland, SeiraiIsland, TsurumiIsland, WatatsumiIsland, YashioriIsland, EnkanomiyaRegion};
             Location[] SumeruForest = {ArdraviValley, AshavanRealm, AvidyaForest, LokapalaJungle, LostNursery, Vanarana, VissudhaField};
             Location[] SumeruDesert = {DesertOfHadramaveth, HypostyleDesert, LandOfLowerSetekh, LandOfUpperSetekh, GavirehLajavard, RealmOfFarakhkert};
@@ -58,7 +58,7 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
                     start = EnkanomiyaRegion.choose(3);
                     end = EnkanomiyaRegion.choose();
 
-                    await RespondAsync(beginning + start + middle + end + "." + final + geoEmote);
+                    await RespondAsync(beginning + start + middle + end + "." + final + geoEmote, ephemeral: true);
                     return;
                 }
 
@@ -66,7 +66,7 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
                 start = Inazuma[number.Next(0, Inazuma.Length - 1)].choose();
                 end = Inazuma[number.Next(0, Inazuma.Length)].choose();
 
-            await RespondAsync(beginning + start + middle + end + "." + final + geoEmote);
+            await RespondAsync(beginning + start + middle + end + "." + final + geoEmote, ephemeral: true);
             return;   
             }
             
@@ -88,7 +88,7 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
                 string middle2 = speech2[number.Next(0, speech2.Length)];
                 end = TheChasmUnderground.choose();
 
-                await RespondAsync(beginning + middle2 + end + "." + final + geoEmote);
+                await RespondAsync(beginning + middle2 + end + "." + final + geoEmote, ephemeral: true);
                 return;
             }
 
@@ -107,11 +107,11 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
 
 
 
-            await RespondAsync(beginning + start + middle + end + "." + final + geoEmote);
+            await RespondAsync(beginning + start + middle + end + "." + final + geoEmote, ephemeral: true);
 
         }catch(Exception ex){
             Console.WriteLine(ex);
-            await RespondAsync($"{ex}\n\nPlease, report this error to the developer.");
+            await RespondAsync($"{ex}\n\nPlease, report this error to the developer.", ephemeral: true);
         }
     }
 
@@ -212,6 +212,24 @@ public class TravelCommand : InteractionModuleBase<SocketInteractionContext>{
          ["Ad-Hoc Main Tunnel", "Nameless Ruins", "Stony Halls", "The Chasm: Main Mining Area", "The Glowing Narrows", "The Serpent's Cave", "Underground Waterway"],
          ["Cor Lapis", "Noctilucous Jade"]
         );
+
+    Location ChenyuValeSouth = 
+        new Location("Liyue",
+        "Chenyu Value: Souther Mountain",
+        ["Adeptus's Repose", "Mt. Xuanlian", "Chizhang Wall", "Teatree Slope", "Lingshu Courtyard", "Yaodie Valley"],
+        []);
+
+    Location ChenyuValueUpperVale = 
+        new Location("Liyue",
+        "Chenyu Value: Upper Vale",
+        ["Chenlong Cleft", "Mt. Mingyuan", "Jademouth", "Qiaoying Village", "Mt. Lingmeng", "Yilong Wharf"],
+        []);
+
+    Location MtLaixin =
+        new Location("Liyue",
+        "Mt. Laixin",
+        ["Carp's Rest", "Chiwang Terrace"],
+        []);
 
 //Inazuma
 

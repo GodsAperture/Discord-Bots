@@ -1,6 +1,7 @@
 ﻿global using Discord;
 global using Discord.Interactions;
 global using Discord.WebSocket;
+global using System.Data.SQLite;
 
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Logging;
@@ -9,8 +10,9 @@ using DiscordNetTemplate.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-
+using RexLapis.Database;
 using Serilog;
+
 DiscordSocketClient client = new DiscordSocketClient(            
     new DiscordSocketConfig
             {
@@ -35,8 +37,8 @@ DiscordSocketClient client = new DiscordSocketClient(
         .WriteTo.File($"logs/log-{DateTime.Now:yy.MM.dd_HH.mm}.log")
         .CreateLogger();
 
-    builder.ConfigureServices((host, services) =>
-    {
+    builder.ConfigureServices((host, services) =>{
+
         services.AddLogging(options => options.AddSerilog(loggerConfig, dispose: true));
 
         services.AddSingleton(client);
@@ -46,12 +48,13 @@ DiscordSocketClient client = new DiscordSocketClient(
             LogLevel = LogSeverity.Info
         }));
 
-        services.AddDbContextFactory<UserDB>(options => options.UseSqlite(Path.Combine("Users","UserInfo.db")));
-
         services.AddSingleton<InteractionHandler>();
 
         services.AddHostedService<DiscordBotService>();
-    });
+
+        services.AddDbContext<DBClass>();
+
+        });
 
     var app = builder.Build();
 

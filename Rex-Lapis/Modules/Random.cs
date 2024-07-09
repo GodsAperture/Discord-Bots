@@ -5,8 +5,9 @@ using Discord.Net.Queue;
 using Microsoft.VisualBasic;
 using System.IO;
 using System.Globalization;
+using RexLapis.Database;
 
-public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
+public class RandomCommand :  InteractionModuleBase<SocketInteractionContext> {
 
     private Random number = new Random((int) (DateTime.Now - DateTime.Today).TotalSeconds);
 
@@ -38,13 +39,13 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
     }
 
 
-    [SlashCommand("pick", "Pick four (or less) random characters you have registered.")]
+    [SlashCommand("random", "Pick up to four random characters you have registered.")]
     public async Task ExecuteCommandAsync(){
         //List of titles Rex Lapis will use to greet the user.
         string[] titleList = {
-            "Hello " + Context.User.GlobalName + "!\n\tPlease select a profile:",
+            "Hello " + Context.User.GlobalName + "!\n\tPlease, select a profile:",
             "Welcome " + Context.User.GlobalName + "!\n\tWhich profile are you using?",
-            "Greetings " + Context.User.GlobalName + "!\n\tPlease choose one:"
+            "Greetings " + Context.User.GlobalName + "!\n\tPlease, choose one:"
         };
         //In case someone has no accounts, this will prevent any weird edge case behavior.
         string[] nullList = {
@@ -55,15 +56,10 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
         };
 
         try{
-            
-            //Determine all files owned by the user and then have the user pick one file.
-            string[] allFiles = Directory.GetFiles(Path.Combine("Users", Context.User.Id.ToString()));
-            string[] allProfiles = allFiles;
 
-            //This code will remove the file directory, and the file extensions.
-            for(int i = 0; i < allFiles.Length; i++){
-                allProfiles[i] = allFiles[i].Split('/')[2].Remove(9);
-            }
+            DBClass user = new DBClass();
+            //Get the list of GenshinIds associated with the Discord user's ID.
+            string[] allProfiles = user.UserInfo.Where(x => x.DiscordId == Context.User.Id.ToString()).ToArray().ElementAt(0).GenshinId.ToArray();
 
             //Pick a title.
             string titlePicked = titleList[number.Next(0, titleList.Length)];
@@ -75,10 +71,11 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
                 Placeholder = "Genshin UIDs"
             };
 
-            //Add all available files to the options list with server identification.
             for(int i = 0; i < allProfiles.Length; i++){
-                menu.AddOption(allProfiles[i], allProfiles[i], description: "UID: " + serverType(allProfiles[i]));
+                menu.AddOption(allProfiles[i], allProfiles[i], description: serverType(allProfiles[i]));
             }
+
+            //Add all available files to the options list with server identification.
 
             //Finalize the creation of the drop down menu.
             MessageComponent dropDownMenu = new ComponentBuilder().WithSelectMenu(menu).Build();
@@ -94,12 +91,39 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
     }
 
     
-    //Afer a user picks a profile, they'll be able to 
+    //Afer a user picks a profile, Rex Lapis will pick 4 corresponding characters at random.
     [ComponentInteraction("pick")]
-    public async Task MenuHandler(string[] input){
-        string[] characters = File.ReadAllLines(Path.Combine("Users", Context.User.Id.ToString(), input[0] + ".csv"));
+    public async Task MenuHandler(string input){
+        await DeferAsync();
+        DBClass user = new DBClass();
+        GenshinIdClass lists = user.GenshinInfo.Where(x => x.GenshinId == input).ElementAt(0);
+        List<string> characters = new List<string>();
 
-////TODO: Fix this, so that each line is broken down into a list of characters. 
+        //Load all owned characters into the `characters` List.
+        for(int i = 0; i < lists.Pyro.Count(); i++){
+            characters.Add(lists.Pyro[i]);
+        }
+        for(int i = 0; i < lists.Hydro.Count(); i++){
+            characters.Add(lists.Hydro[i]);
+        }
+        for(int i = 0; i < lists.Anemo.Count(); i++){
+            characters.Add(lists.Anemo[i]);
+        }
+        for(int i = 0; i < lists.Electro.Count(); i++){
+            characters.Add(lists.Electro[i]);
+        }
+        for(int i = 0; i < lists.Dendro.Count(); i++){
+            characters.Add(lists.Dendro[i]);
+        }
+        for(int i = 0; i < lists.Cryo.Count(); i++){
+            characters.Add(lists.Cryo[i]);
+        }
+        for(int i = 0; i < lists.Geo.Count(); i++){
+            characters.Add(lists.Geo[i]);
+        }
+
+
+
         //`list` will be the list of characters, and will be sent to the user in the form `first + list + end`.
         string list = "";
         int[] num = new int[4];
@@ -124,14 +148,14 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
 
         //Give num four random numbers. I'll use a loop to check that none are the same.
         for(int i = 0; i < 4; i++){
-            num[i] = number.Next(0, characters.Length);
+            num[i] = number.Next(0, characters.Count());
         }
 
         //If any of the numbers are equal, the one that appears later in the list will be changed.
         for(int i = 0; i < 4; i++){
             for(int k = i + 1; k < 4; k++){
                 while(num[i] == num[k]){
-                    num[k] = number.Next(0, characters.Length);
+                    num[k] = number.Next(0, characters.Count());
                 }
             }
         }
@@ -144,7 +168,8 @@ public class PickCommand :  InteractionModuleBase<SocketInteractionContext> {
         //Add the last character without the ", " at the end.
         list += "and " + characters[num[3]];
 
-        await RespondAsync(first + list + last, ephemeral: true);
+        await ((IComponentInteraction) Context.Interaction).DeleteOriginalResponseAsync();
+        await FollowupAsync(first + list + last, ephemeral: true);
 
     }
 

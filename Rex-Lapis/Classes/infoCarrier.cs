@@ -1,23 +1,15 @@
 public class infoCarrier{
-    //By default, none of the menus are changed.
-    public bool PyroBool = false;
-    public bool HydroBool = false;
-    public bool AnemoBool = false;
-    public bool ElectroBool = false;
-    public bool DendroBool = false;
-    public bool CryoBool = false;
-    public bool GeoBool = false;
-    public bool FileBool = false;
+    public int ProfileCount {get; set;} = 0;
 
-    //Menus will always have characters owned as selected by default.
+    //Menus will always have characters owned by the user as selected by default.
     //These lists will have owned characters loaded in.
-    public string[] PyroList = [];
-    public string[] HydroList = [];
-    public string[] AnemoList = [];
-    public string[] ElectroList = [];
-    public string[] DendroList = [];
-    public string[] CryoList = [];
-    public string[] GeoList = [];
-    public string File = "";
+    public List<string> PyroList = [];
+    public List<string> HydroList = [];
+    public List<string> AnemoList = [];
+    public List<string> ElectroList = [];
+    public List<string> DendroList = [];
+    public List<string> CryoList = [];
+    public List<string> GeoList = [];
+    public string Profile = "";
 
 }

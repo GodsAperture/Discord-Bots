@@ -84,11 +84,11 @@ public class InteractionHandler
 
         if (!interaction.HasResponded)
         {
-            await interaction.RespondAsync("An error has occurred. We are already investigating it!\n\tJust ping GodsAperture.", ephemeral: true);
+            await interaction.RespondAsync("An error has occurred. We are already investigating it!\n\tJust ping GodsAperture:", ephemeral: true);
         }
         else
         {
-            await interaction.FollowupAsync("An error has occurred. We are already investigating it!\n\tJust ping GodsAperture.", ephemeral: true);
+            await interaction.RespondAsync("An error has occurred. We are already investigating it!\n\tJust ping GodsAperture:", ephemeral: true);
         }
     }
 }
