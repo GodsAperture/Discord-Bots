@@ -3,6 +3,7 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 appsettings.json
+UserInfo.db
 .vscode/*
 /info.txt
 Rex-Lapis/Users/*
@@ -13,6 +14,7 @@ Rex-Lapis/Users/*
 *.user
 *.userosscache
 *.sln.docstates
+*.db
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
