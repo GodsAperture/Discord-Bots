@@ -449,7 +449,7 @@ public static class characterList{
         "Lynette",
         "https://static.wikia.nocookie.net/gensin-impact/images/e/e4/Lynette_Card.png/revision/latest?cb=20230703101903",
         "https://static.wikia.nocookie.net/gensin-impact/images/a/ad/Lynette_Icon.png/revision/latest/scale-to-width-down/74?cb=20230816051019",
-        "Electro",
+        "Anemo",
         "sword",
         "fontaine",
         ["dps", "subdps"]
