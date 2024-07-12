@@ -1,6 +1,6 @@
 using System.Threading.Tasks.Dataflow;
 
-public class UpdateClass : InteractionModuleBase<SocketInteractionContext>{
+public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
     [SlashCommand("version", "Tells the user the current version and most recent updates.")]
     public async Task versionMethod(){
         string currentVersion = "1.1";
