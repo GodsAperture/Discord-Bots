@@ -1,118 +1,95 @@
-//This has been last updated v.4.3
-
-using Discord;
-using Discord.Interactions;
-using System;
-
-//Note to self, the three Locus in Enkanomiya don't reach back to the main land.    
+//This has been last updated v.4.8    
 public class TravelClass : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("travel", "Rex Lapis prompts the user with a journey.")]
     public async Task TravelCommand(){
-        try{
-            string start;
-            string end;
+        string start;
+        string end;
 
-            string beginning = speech1[number.Next(0, speech1.Length)];
-            string[] middle1 = 
-            {" and sight-see my way toward ",
-            " whilst enjoying the scenery along the way to ",
-            " and all the while enjoy roaming to ",
-            " and relax during a trek for ",
-            " during which I sauntered my way to "};
+        string beginning = speech1[number.Next(0, speech1.Length)];
+        string[] middle1 = 
+        {" and sight-see my way toward ",
+        " whilst enjoying the scenery along the way to ",
+        " and all the while enjoy roaming to ",
+        " and relax during a trek for ",
+        " during which I sauntered my way to "};
 
-            Emoji geoEmote = new Emoji("<:Geo:1158853006364774491>");
+        string middle = middle1[number.Next(0, middle1.Length)];
 
-            string[] finisher = 
-            {"\n\n\tShow your friends you love them on the journey,\n\t\tSigned, `Rex Lapis` ",
-            "\n\n\tEnjoy the journey with more company,\n\t\tSigned, `Rex Lapis` ",
-            "\n\n\tSight-seeing is always best with friends,\n\t\tSigned, `Rex Lapis` ",
-            "\n\n\tTake your time, enjoy the scenery with your friends,\n\t\tSigned, `Rex Lapis` "};
-
-            string final = finisher[number.Next(0, finisher.Length)];
-
-            string middle = middle1[number.Next(0, middle1.Length)];
-
-            //Combine all locations into regions, except for Sumeru. Sumeru is divided into desert and forest.
-            Location[] Monstadt = {BrightcrownMountains, Dragonspine, GalesongHill, StarfellValley, WindwailHighland};
-            Location[] Liyue = {BishuiPlain, Lisha, Minlin, QiongjiEstuary, SeaOfClouds, TheChasmAboveGround, TheChasmUnderground, ChenyuValeSouth, ChenyuValueUpperVale, MtLaixin};
-            Location[] Inazuma = {Kannazuka, NarukamiIsland, SeiraiIsland, TsurumiIsland, WatatsumiIsland, YashioriIsland, EnkanomiyaRegion};
-            Location[] SumeruForest = {ArdraviValley, AshavanRealm, AvidyaForest, LokapalaJungle, LostNursery, Vanarana, VissudhaField};
-            Location[] SumeruDesert = {DesertOfHadramaveth, HypostyleDesert, LandOfLowerSetekh, LandOfUpperSetekh, GavirehLajavard, RealmOfFarakhkert};
-            Location[] Fontaine = {BelleauRegion, BerylRegion, CourtOfFontaine, ErinnyesForest, FRI, LiffeyRegion, MorteRegion};
-            Location[][] AllLocations = {Inazuma, Monstadt, Liyue, SumeruForest, SumeruDesert, Fontaine};
+        //Combine all locations into regions, except for Sumeru. Sumeru is divided into desert and forest.
+        Location[] Monstadt = {BrightcrownMountains, Dragonspine, GalesongHill, StarfellValley, WindwailHighland};
+        Location[] Liyue = {BishuiPlain, Lisha, Minlin, QiongjiEstuary, SeaOfClouds, TheChasmAboveGround, TheChasmUnderground, ChenyuValeSouth, ChenyuValueUpperVale, MtLaixin};
+        Location[] Inazuma = {Kannazuka, NarukamiIsland, SeiraiIsland, TsurumiIsland, WatatsumiIsland, YashioriIsland, EnkanomiyaRegion};
+        Location[] SumeruForest = {ArdraviValley, AshavanRealm, AvidyaForest, LokapalaJungle, LostNursery, Vanarana, VissudhaField};
+        Location[] SumeruDesert = {DesertOfHadramaveth, HypostyleDesert, LandOfLowerSetekh, LandOfUpperSetekh, GavirehLajavard, RealmOfFarakhkert};
+        Location[] Fontaine = {BelleauRegion, BerylRegion, CourtOfFontaine, ErinnyesForest, FRI, LiffeyRegion, MorteRegion};
+        Location[][] AllLocations = {Inazuma, Monstadt, Liyue, SumeruForest, SumeruDesert, Fontaine};
 
 
-            //Determine out starting region, such as Sumeru, Fontaine, etc.
-            int startNum1 = number.Next(0, AllLocations.Length);
+        //Determine out starting region, such as Sumeru, Fontaine, etc.
+        int startNum1 = number.Next(0, AllLocations.Length);
 
 
 
-            //If `num` is 0, then Inazuma is picked. If Inazuma is picked, then we stay in Inazuma.
-            if(startNum1 == 0){
-                startNum1 = number.Next(0, Inazuma.Length);
-                //If `num` is 6, then Enkanomiya is picked. If Enkanomiya is picked, then the `end` is also in Enkanomiya.
-                //I also ensure that none of the isolated islands are picked as starting points.
-                if(startNum1 == 6){
-                    //`choose` with an integer argument will exclude `integer` amount of objects at the end of the list.
-                    start = EnkanomiyaRegion.choose(3);
-                    end = EnkanomiyaRegion.choose();
+        //If `num` is 0, then Inazuma is picked. If Inazuma is picked, then we stay in Inazuma.
+        if(startNum1 == 0){
+            startNum1 = number.Next(0, Inazuma.Length);
+            //If `num` is 6, then Enkanomiya is picked. If Enkanomiya is picked, then the `end` is also in Enkanomiya.
+            //I also ensure that none of the isolated islands are picked as starting points.
+            if(startNum1 == 6){
+                //`choose` with an integer argument will exclude `integer` amount of objects at the end of the list.
+                start = EnkanomiyaRegion.choose(3);
+                end = EnkanomiyaRegion.choose();
 
-                    await RespondAsync(beginning + start + middle + end + "." + final + geoEmote, ephemeral: true);
-                    return;
-                }
-
-                //If `num` is not 6, then Enkanomiya is not picked. However, Enkanomiya can still be picked as an ending destination.
-                start = Inazuma[number.Next(0, Inazuma.Length - 1)].choose();
-                end = Inazuma[number.Next(0, Inazuma.Length)].choose();
-
-            await RespondAsync(beginning + start + middle + end + "." + final + geoEmote, ephemeral: true);
-            return;   
-            }
-            
-
-
-            //Using `num` I determine what region to pick to start with. I then pick a location to begin in.
-            Location[] region1 = AllLocations[startNum1];
-            Location startRegion = region1[number.Next(0, region1.Length)];
-            start = startRegion.choose();
-
-
-            //If the beginning is the underground portion of the Chasm, then the end is also in the underground portion of the Chasm.
-            if(startRegion.getPlace() == "The Chasm: Underground Mines"){
-                string[] speech2 = 
-                {"the underground parts of the Chasm and visit the ",
-                "the central mining area of the Chasm and pass by the ",
-                "the abandoned ruins of the Chasm and observe the "};
-
-                string middle2 = speech2[number.Next(0, speech2.Length)];
-                end = TheChasmUnderground.choose();
-
-                await RespondAsync(beginning + middle2 + end + "." + final + geoEmote, ephemeral: true);
+                await RespondAsync(beginning + start + middle + end + "." + Global.lastStatement(), ephemeral: true);
                 return;
             }
 
+            //If `num` is not 6, then Enkanomiya is not picked. However, Enkanomiya can still be picked as an ending destination.
+            start = Inazuma[number.Next(0, Inazuma.Length - 1)].choose();
+            end = Inazuma[number.Next(0, Inazuma.Length)].choose();
 
-            //An ending location is picked at random, and is then used to be the ending of the journey.
-            //Inazuma is number 0, and is always excluded from the random choice list.
-            Location[] region2 = AllLocations[number.Next(1, AllLocations.Length)];
-            int endNum = number.Next(0, region2.Length);
-
-            //If by chance the starting number and ending number are the same, the end will be rerolling until it is no longer the same. 
-            while(startNum1 == endNum){
-                endNum = number.Next(0, region2.Length);
-            }
-
-            end = region2[endNum].choose();
-
-
-
-            await RespondAsync(beginning + start + middle + end + "." + final + geoEmote, ephemeral: true);
-
-        }catch(Exception ex){
-            Console.WriteLine(ex);
-            await RespondAsync($"{ex}\n\nPlease, report this error to the developer.", ephemeral: true);
+        await RespondAsync(beginning + start + middle + end + "." + Global.lastStatement(), ephemeral: true);
+        return;   
         }
+        
+
+
+        //Using `num` I determine what region to pick to start with. I then pick a location to begin in.
+        Location[] region1 = AllLocations[startNum1];
+        Location startRegion = region1[number.Next(0, region1.Length)];
+        start = startRegion.choose();
+
+
+        //If the beginning is the underground portion of the Chasm, then the end is also in the underground portion of the Chasm.
+        if(startRegion.getPlace() == "The Chasm: Underground Mines"){
+            string[] speech2 = 
+            {"the underground parts of the Chasm and visit the ",
+            "the central mining area of the Chasm and pass by the ",
+            "the abandoned ruins of the Chasm and observe the "};
+
+            string middle2 = speech2[number.Next(0, speech2.Length)];
+            end = TheChasmUnderground.choose();
+
+            await RespondAsync(beginning + middle2 + end + "." + Global.lastStatement(), ephemeral: true);
+            return;
+        }
+
+
+        //An ending location is picked at random, and is then used to be the ending of the journey.
+        //Inazuma is number 0, and is always excluded from the random choice list.
+        Location[] region2 = AllLocations[number.Next(1, AllLocations.Length)];
+        int endNum = number.Next(0, region2.Length);
+
+        //If by chance the starting number and ending number are the same, the end will be rerolling until it is no longer the same. 
+        while(startNum1 == endNum){
+            endNum = number.Next(0, region2.Length);
+        }
+
+        end = region2[endNum].choose();
+
+        await RespondAsync(beginning + start + middle + end + "." + Global.lastStatement(), ephemeral: true);
+
     }
 
 

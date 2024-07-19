@@ -53,34 +53,24 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
 
         //First part of the response.
         string[] beginning = [
-            "It would be quite entertaining to battle ",
-            "A day to be remembered would be challenging ",
-            "A mountainous trial to overcome would be to face off against "
+            "I see you're quite eager for a set of trials. Try these:",
+            "A day to be remembered would be challenging:",
+            "A mountainous trial to overcome would be to face off against:"
         ];
 
         string first = beginning[Global.number.Next(0, beginning.Length)];
         
-        //Separator between boss sequence and final boss.
-        string[] middling = [
-            "and last, but not least, ",
-            "and finally ",
-            "concluding with ",
-            "finishing with "
-        ];
-
-        string middle = middling[Global.number.Next(0, middling.Length)];
-
         //If the user does not provide a non-zero non-negative integer, then they'll get multiple bosses.
         if(integer == null){
-        string bosses = "";
-
+        string bosses = "```";
+            bosses += "\n- ";
             bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
             bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
             bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
 
             string finalBoss = trounceList[Global.number.Next(0, trounceList.Length)];
 
-            await RespondAsync(first + bosses + middle + finalBoss + ".", ephemeral: true);
+            await RespondAsync(first + bosses + finalBoss + "```" + Global.lastStatement(), ephemeral: true);
 
         } else {
 
@@ -111,36 +101,31 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
 
                 }
                 //Meh, fuck it, unnecessary if statement to make it look nice.
-                if(value > 0 & value <= 4){
+                if(value > 0 & value <= 6){
                     //The number of bosses will always be a multiple of the integer provided.
                     //The number of normal bosses is always a multiple of three.
                     //The number of trounce bosses is always the amount provided by the `integer`.
-                    string bosses = "";
-                    for(int i = 0; i < value - 1; i++){
+                    string bosses = "```";
+                    for(int i = 0; i < value; i++){
+                        bosses += "\n- ";
                         bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
                         bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
                         bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
 
-                        bosses += trounceList[Global.number.Next(0, trounceList.Length)] + ", ";
+                        bosses += trounceList[Global.number.Next(0, trounceList.Length)];
                     }
 
-                    bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
-                    bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
-                    bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
-
-                    string finalBoss = trounceList[Global.number.Next(0, trounceList.Length)];
-
-                    await RespondAsync(first + bosses + middle + finalBoss + ".", ephemeral: true);
+                    await RespondAsync(first + bosses + "```" + Global.lastStatement(), ephemeral: true);
                     return;
                 } else {
-                    //If the user is too ambitious, the bot will decline. This is to prevent self DDoSing, and to prevent user screen spam.
+                    //If the user is too ambitious, the bot will decline. This is to prevent self DDoSing, and to prevent user self spam.
                     string[] tooManyResponse = {
                         "While ambition is a good thing, you'll probably get yourself killed fighting this many sequences...",
-                        "Ahem, are you sure you can fight this many sequences in a row without growing weary? Choose 4 or less sequences.",
-                        "Even the mightiest of archons could not face off this many enemies without trouble. Try fewer than five sequences.",
-                        integer + " sequences? Goodness me, you sound like you wish to fight the world. Please, pick a number from 1 to 4.",
-                        "My my, that troublesome one, Childe, would love your sense of challenge. However, you should not fight everyone and everything like he does. Instead, try 4 or fewer at a time.",
-                        integer + "? " + integer + "?? You cannot be serious, you want to fight " + (value * 4) + " bosses, one after the other, and with no reprieve?\nChoose a smaller amount. Preferrably less than or equal to 4 sequences."
+                        "Ahem, are you sure you can fight this many sequences in a row without growing weary? Choose 6 or less sequences.",
+                        "Even the mightiest of archons could not face off this many enemies without trouble. Try 6 or fewer sequences.",
+                        integer + " sequences? Goodness me, you sound like you wish to fight the world. Please, pick a number from 1 to 6.",
+                        "My my, that troublesome one, Childe, would love your sense of challenge. However, you should not fight everyone and everything like he does. Instead, try 6 or fewer at a time.",
+                        integer + "? " + integer + " *sequnences*?? You cannot be serious, you want to fight " + (value * 4) + " bosses, one after the other, and with no reprieve?\nChoose a smaller amount. Preferrably less than or equal to 6 sequences."
                     };
 
                     await RespondAsync(tooManyResponse[Global.number.Next(0, tooManyResponse.Length)], ephemeral: true);
@@ -149,7 +134,7 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
             } else {
                 //In case the user mis-types or gives something that isn't a number whatsoever, this will tell them.
                 string[] nonNumber = {
-                    "Excuse me, but I was expecting a number, like " + Global.number.Next(1, 4) + ".",
+                    "Excuse me, but I was expecting a number, like " + Global.number.Next(1, 6) + ".",
                     "This must be a mistake " + Context.User.GlobalName + ", but you seem to have given a non-number for a prompt that requires a number.",
                     "Excuse me, but '*" + integer + "*' isn't an acceptable numerical response.",
                     "*" + integer + "*" + " might represent a number in some sort of mathematics, but it is not an acceptable number for this.",

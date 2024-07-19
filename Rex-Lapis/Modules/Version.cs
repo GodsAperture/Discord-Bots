@@ -3,7 +3,7 @@ using System.Threading.Tasks.Dataflow;
 public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
     [SlashCommand("version", "Tells the user the current version and most recent updates.")]
     public async Task versionMethod(){
-        string currentVersion = "1.1";
+        string currentVersion = "1.2";
         //The list of all greetings along with a singly picked greeting.
         string[] greetings = {
             "Greetings " + Context.User.GlobalName + ", I am currently in version `" + currentVersion + "`.\n",
@@ -14,9 +14,11 @@ public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
 
         //All relevant updates
         string[] allUpdates = {
-            "- Added a new command called version.",
-            "- Added a new command called card.",
-            "- Added a new command called boss.",
+            "- Edited /card to display three cards now.",
+            "- Fixed /card so it no longer displays the literal same card every day. Repeats can still occur though.",
+            "- /help no longer deletes the drop down menu.",
+            "- /character no longer requires a minimum of one character per drop down menu.",
+            "- Made some minor tweaks to the rules of /boss."
         };
 
         //Final bit of information.
