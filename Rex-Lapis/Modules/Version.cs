@@ -9,7 +9,7 @@ public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
         string[] greetings = {
             "Greetings " + Context.User.GlobalName + ", I am currently in version `" + currentVersion + "`.\n",
             "Hello " + Context.User.GlobalName + ", the most up to date version is `" + currentVersion + "`.\n",
-            "Good day" + Context.User.GlobalName + ", I am currently running as verion `" + currentVersion + "`.\n"
+            "Good day " + Context.User.GlobalName + ", I am currently running as verion `" + currentVersion + "`.\n"
         };
         string picked = greetings[Global.number.Next(0, greetings.Length)];
 
