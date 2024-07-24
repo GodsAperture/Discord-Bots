@@ -50,6 +50,7 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("boss", "The user is prompted with a set of bosses to fight.")]
     public async Task bossRushMethod(string? integer = null){
+        CounterClass.bossCount++;
 
         //First part of the response.
         string[] beginning = [

@@ -5,7 +5,7 @@ public class Register2Command : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("register", "Associate a Genshin UID with your Discord account.")]
     public async Task ExecuteCommandAsync([Summary("GenshinUID", "Associate a Genshin UID with your Discord account.")] string GenshinUID){
-        
+        CounterClass.registerCount++;
         try{
             //The Discord UID will be their own personal file directory.
             string UID = Context.User.Id.ToString();

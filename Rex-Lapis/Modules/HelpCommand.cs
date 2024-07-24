@@ -6,12 +6,14 @@ public class HelpClass : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("help", "Rex Lapis describes all current commands.")]
     public async Task HelpCommand(){
+        CounterClass.helpCount++;
         //Create a drop down menu for the user to select what they need help with.
         SelectMenuBuilder thisMenu = new SelectMenuBuilder();
         thisMenu.CustomId = "HelperMenu";
         thisMenu.Placeholder = "What would you like help with?";
         thisMenu.AddOption("Boss", "Boss", "Rex Lapis suggest a set of bosses to fight against.");
         thisMenu.AddOption("Card", "Card", "Rex Lapis gives you a prompt for the day.");
+        thisMenu.AddOption("Counter", "Counter", "Very basic data on how many times a command has been used.");
         thisMenu.AddOption("Character", "Character", "Add characters to your currently selected profile.");
         thisMenu.AddOption("Random", "Random", "Pick up to four random characters you have registered.");
         thisMenu.AddOption("Register", "Register", "Associate a Genshin UID with your Discord account.");
@@ -45,6 +47,12 @@ public class HelpClass : InteractionModuleBase<SocketInteractionContext>{
         if(input == "Card"){
             string ending = End[num.Next(0, End.Length)];
             string statement = "```Rex Lapis chooses three cards, each with a prompt for the user to do for that day in Genshin. Cards change daily and some prompts have sub-prompts that also change daily too.```";
+            await ((IComponentInteraction) Context.Interaction).ModifyOriginalResponseAsync(x => x.Content = statement + ending);
+            return;
+        }
+        if(input == "Counter"){
+            string ending = End[num.Next(0, End.Length)];
+            string statement = "```This command provides the number of times a command has been used. This command is more useful for the developer than anyone else.```";
             await ((IComponentInteraction) Context.Interaction).ModifyOriginalResponseAsync(x => x.Content = statement + ending);
             return;
         }

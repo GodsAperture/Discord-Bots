@@ -1,6 +1,7 @@
 public class CardClass : InteractionModuleBase<SocketInteractionContext>{
     [SlashCommand("card", "Rex Lapis gives you your daily card.")]
     public async Task cardMethod(){
+        CounterClass.cardCount++;
         Random number = new Random((int) Context.User.Id + (int) (DateTime.Today - DateTime.MinValue).TotalDays);
         ulong UID = Context.User.Id;
 

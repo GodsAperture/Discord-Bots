@@ -41,6 +41,7 @@ public class RandomCommand :  InteractionModuleBase<SocketInteractionContext> {
 
     [SlashCommand("random", "Pick up to four random characters you have registered.")]
     public async Task ExecuteCommandAsync(){
+        CounterClass.randomCount++;
         //List of titles Rex Lapis will use to greet the user.
         string[] titleList = {
             "Hello " + Context.User.GlobalName + "!\n\tPlease, select a profile:",

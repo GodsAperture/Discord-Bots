@@ -66,6 +66,7 @@ public class CharacterClass : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("character", "Add characters to your currently selected profile.")]
     public async Task CharacterCommand(){
+        CounterClass.characterCount++;
         Random number = new Random();
         //Characters that users have will be selected in the character menu.
         //nullList will be used for users who haven't registered an account.

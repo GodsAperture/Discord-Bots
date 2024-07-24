@@ -1,0 +1,150 @@
+/*All listed objects are menus, all hyphenated objects are sub menus.
+Characters
+- Pyro
+- Hydro
+- Anemo
+- Electro
+- Dendro
+- Cryo
+- Geo
+
+Artifacts
+- Monstadt
+- Liyue
+- Inazuma
+- Sumeru
+- Fontaine
+- Natlan
+- Snezhnaya
+
+Side Quests
+- Monstadt
+- Liyue
+- Inazuma
+- Sumeru
+- Fontaine
+- Natlan
+- Snezhnaya
+
+Weapons will also have another drop down menu to determine the rarity.
+Weapons
+5* / 4* / 3*
+- Sword
+- Claymore
+- Polearm
+- Bow
+- Catalyst
+*/
+
+using System.Diagnostics.Metrics;
+
+public class FandomClass : InteractionModuleBase<SocketInteractionContext>{
+    [SlashCommand("fandom", "Find information from Genshin Fandom.")]
+    public async Task fandomCommand(){
+        CounterClass.fandomCount++;
+        SelectMenuBuilder firstMenu = new SelectMenuBuilder();
+
+        firstMenu.AddOption("Characters", "Characters", "Find info about individual characters, sorted by element.");
+        firstMenu.AddOption("Artifacts", "Artifacts", "Find information about each artifact domain, sorted by region.");
+        firstMenu.AddOption("Side Quests", "Side Quests", "Find information about side quests, sorted by region.");
+        firstMenu.AddOption("Weapons", "Weapons", "Find information about weapons, sorted by rarity and then type.");
+        firstMenu.WithCustomId("fandomHandler");
+
+        MessageComponent overallMenu = new ComponentBuilder().
+        WithSelectMenu(firstMenu).
+        Build();
+
+        await RespondAsync(components: overallMenu, ephemeral: true);
+    }
+
+    [ComponentInteraction("fandomHandler")]
+    public async Task CharactersHandler(string input){
+        if(input == "Characters"){
+            MessageComponent overallMenu = new ComponentBuilder().
+            WithSelectMenu(new SelectMenuBuilder().
+            WithCustomId("CharacterHandler").
+            AddOption("Pyro", "Pyro").
+            AddOption("Hydro", "Hydro").
+            AddOption("Anemo", "Anemo").
+            AddOption("Electro", "Electro").
+            AddOption("Dendro", "Dendro").
+            AddOption("Cryo", "Cryo").
+            AddOption("Geo", "Geo")
+            ).
+            Build();
+
+            await ((IComponentInteraction) Context.Interaction).UpdateAsync(x => x.Components = overallMenu);
+        }
+        if(input == "Artifacts"){
+            MessageComponent overallMenu = new ComponentBuilder().
+            WithSelectMenu(new SelectMenuBuilder().
+            WithCustomId("ArtifactHandler").
+            AddOption("Monstadt", "Monstadt").
+            AddOption("Liyue", "Liyue").
+            AddOption("Inazuma", "Inazuma").
+            AddOption("Sumeru", "Sumeru").
+            AddOption("Fontaine", "Fontaine")
+            ).
+            Build();
+
+            await ((IComponentInteraction) Context.Interaction).UpdateAsync(x => x.Components = overallMenu);
+        }
+        if(input == "Side Quests"){
+            MessageComponent overallMenu = new ComponentBuilder().
+            WithSelectMenu(new SelectMenuBuilder().
+            WithCustomId("SideQuestsHandler").
+            AddOption("Monstadt", "Monstadt").
+            AddOption("Liyue", "Liyue").
+            AddOption("Inazuma", "Inazuma").
+            AddOption("Sumeru", "Sumeru").
+            AddOption("Fontaine", "Fontaine")
+            ).
+            Build();
+
+            await ((IComponentInteraction) Context.Interaction).UpdateAsync(x => x.Components = overallMenu);
+        }
+        if(input == "Weapons"){
+            MessageComponent overallMenu = new ComponentBuilder().
+            WithSelectMenu(new SelectMenuBuilder().
+            WithCustomId("WeaponsHandler").
+            AddOption("Swords", "Swords").
+            AddOption("Claymores", "Claymores").
+            AddOption("Polearms", "Polearms").
+            AddOption("Bows", "Bows").
+            AddOption("Catalysts", "Catalysts")
+            ).
+            Build();
+
+            await ((IComponentInteraction) Context.Interaction).UpdateAsync(x => x.Components = overallMenu);
+        }
+    }
+////Character handlers
+    [ComponentInteraction("CharacterHandler")]
+    public async Task CharacterHandlerHandler(string input){
+        SelectMenuBuilder Menu = new SelectMenuBuilder();
+        Menu.CustomId = "CharacterGetter";
+
+        //Add all characters of the matching element to Menu.
+        for(int i = 0; i < characterList.charList.Length; i++){
+            if(characterList.charList[i].Element == input){
+                Menu.AddOption(characterList.charList[i].Name, characterList.charList[i].Name, characterList.charList[i].Name);
+                continue;
+            }
+        }
+
+        MessageComponent finalMenu = new ComponentBuilder().WithSelectMenu(Menu).Build();
+        //Present the finalized menu to the user.
+        await ((IComponentInteraction) Context.Interaction).UpdateAsync(x => x.Components = finalMenu);
+
+    }    
+
+    [ComponentInteraction("CharacterGetter")]
+    public async Task characterGetter(string input){
+        
+    }
+
+////Side Quest handlers
+    [ComponentInteraction("SideQuestsHandler")]
+    public async Task SideQuestsHandler(string input){}
+
+}

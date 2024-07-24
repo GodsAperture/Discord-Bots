@@ -3,6 +3,7 @@ public class TravelClass : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("travel", "Rex Lapis prompts the user with a journey.")]
     public async Task TravelCommand(){
+        CounterClass.travelCount++;
         string start;
         string end;
 
