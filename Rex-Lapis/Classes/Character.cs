@@ -9,7 +9,7 @@ public class Character{
     public string Region {get;}
     public string[] Type {get;}
 
-    //This will make dealing with characters much much easier than using jsons.
+    //This will make dealing with characters much much easier than using JSONs.
     public Character(string inName, string inCard, string inIcon, string inElement, string inWeapon, string inRegion, string[] inType){
         Name = inName;
         Card = inCard;
@@ -18,8 +18,6 @@ public class Character{
         Weapon = inWeapon;
         Region = inRegion;
         Type = inType;
-    } 
-
-
+    }
 
 }

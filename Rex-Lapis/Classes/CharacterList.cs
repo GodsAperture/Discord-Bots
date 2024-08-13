@@ -326,7 +326,7 @@ public static class characterList{
     ),
 
     new Character(
-        "Kaedahara Kazuha",
+        "Kaedehara Kazuha",
         "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Kaedehara_Kazuha_Card.png/revision/latest?cb=20210607100841",
         "https://static.wikia.nocookie.net/gensin-impact/images/e/e3/Kaedehara_Kazuha_Icon.png/revision/latest/scale-to-width-down/74?cb=20210623063513",
         "Anemo",

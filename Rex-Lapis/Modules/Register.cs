@@ -45,7 +45,7 @@ public class Register2Command : InteractionModuleBase<SocketInteractionContext>{
             IQueryable<UserInfoClass> userList = info.UserInfo.Where(x => x.DiscordId == UID);
             if(userList.Count() == 0){
                 info.UserInfo.Add(new UserInfoClass(){
-                    DiscordId = UID,
+                    DiscordId = UID
                 });
                 await info.SaveChangesAsync();
             }

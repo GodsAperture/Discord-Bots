@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Permissions;
 
 namespace RexLapis.Database{
     //UserInfoClass represents the Discord user.
@@ -30,7 +31,22 @@ namespace RexLapis.Database{
         public List<string> Geo { get; set; } = new List<string>();
 
     }
-    //
+
+    public partial class EventClass{
+        [Key]
+        public string GuildId { get; set; } = "";
+        public List<string> EventId { get; set; } = new List<string>();
+        public List<string> HostRoles { get; set; } = new List<string>();
+    }
+
+    public partial class CurrentEventsClass{
+        [Key]
+        public string EventId { get; set; } = "";
+        public string Description { get; set; } = "";
+        public List<string> EventRoles { get; set; } = new List<string>();
+        public List<string> Users { get; set; } = new List<string>();
+    }
+
     // Summary:
     //  DBClass represents the database I have, however the database itself will not
     //  be on GitHub.
@@ -38,6 +54,8 @@ namespace RexLapis.Database{
 
         public virtual DbSet<UserInfoClass> UserInfo { get; set; }
         public virtual DbSet<GenshinIdClass> GenshinInfo { get; set; }
+        public virtual DbSet<EventClass> Event { get; set;}
+        public virtual DbSet<CurrentEventsClass> CurrentEvents { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -47,6 +65,8 @@ namespace RexLapis.Database{
         protected override void OnModelCreating(ModelBuilder modelBuilder){
             modelBuilder.Entity<UserInfoClass>().ToTable("UserInfo");
             modelBuilder.Entity<GenshinIdClass>().ToTable("GenshinId");
+            modelBuilder.Entity<EventClass>().ToTable("Event");
+            modelBuilder.Entity<CurrentEventsClass>().ToTable("CurrentEvent");
         }
 
     }

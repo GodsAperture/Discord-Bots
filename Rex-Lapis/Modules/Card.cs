@@ -46,7 +46,8 @@ public class CardClass : InteractionModuleBase<SocketInteractionContext>{
             "A little theater wouldn't hurt, why not go for the Imaginarium Theater today?",
             "Perhaps we should take some time to mine in " + locations[number.Next(0, locations.Length)] + ". The ores would serve us well in the future.",
             "It might be a good idea to gather some wood from the trees in " + locations[number.Next(0, locations.Length)] + ". We could make some nice furniture with it, after all.",
-            "Maybe today would be a good time to invest in a benched character."
+            "Maybe today would be a good time to invest in a benched character.",
+            "Why not play a game of hide and seek with your friends?"
         ];
 
         string pick1 = cards[number.Next(0, cards.Length)];

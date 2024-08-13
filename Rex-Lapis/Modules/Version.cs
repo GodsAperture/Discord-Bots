@@ -36,13 +36,15 @@ public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
 
         version 1.3:
         {
-            "- Added the /counter command."
+            "- Added the /counter command.",
+            "- Added a new card to `/card`."
         }
 
         */
 
         string[] allUpdates = {
             "- Added the /counter command",
+            "- Added a new card to `/card`."
         };
 
         //Final bit of information.
