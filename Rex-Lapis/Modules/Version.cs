@@ -11,7 +11,6 @@ public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
             "Hello " + Context.User.GlobalName + ", the most up to date version is `" + currentVersion + "`.\n",
             "Good day " + Context.User.GlobalName + ", I am currently running as verion `" + currentVersion + "`.\n"
         };
-        string picked = greetings[Global.number.Next(0, greetings.Length)];
 
         //All relevant updates
         /*  
@@ -50,7 +49,7 @@ public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
         //Final bit of information.
         string final = "For any more information, please use the `/help` command.";
 
-        await RespondAsync(picked + "```" + String.Join('\n', allUpdates) + "```" + final, ephemeral: true);
+        await RespondAsync(Global.picker(greetings) + "```" + String.Join('\n', allUpdates) + "```" + final, ephemeral: true);
 
     }
 }

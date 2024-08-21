@@ -25,7 +25,7 @@ public class CounterMethodClass : InteractionModuleBase<SocketInteractionContext
         count += "```";
 
         //Return the counts to the user.
-        await RespondAsync(greetings[Global.number.Next(0, greetings.Length)] + count + Global.lastStatement(), ephemeral: true);
+        await RespondAsync(Global.picker(greetings) + count + Global.lastStatement(), ephemeral: true);
 
     }
 }

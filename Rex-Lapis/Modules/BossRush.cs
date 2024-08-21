@@ -59,17 +59,17 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
             "A mountainous trial to overcome would be to face off against:"
         ];
 
-        string first = beginning[Global.number.Next(0, beginning.Length)];
+        string first = Global.picker(beginning);
         
         //If the user does not provide a non-zero non-negative integer, then they'll get multiple bosses.
         if(integer == null){
         string bosses = "```";
             bosses += "\n- ";
-            bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
-            bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
-            bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
+            bosses += Global.picker(bossList) + ", ";
+            bosses += Global.picker(bossList) + ", ";
+            bosses += Global.picker(bossList) + ", ";
 
-            string finalBoss = trounceList[Global.number.Next(0, trounceList.Length)];
+            string finalBoss = Global.picker(trounceList);
 
             await RespondAsync(first + bosses + finalBoss + "```" + Global.lastStatement(), ephemeral: true);
 
@@ -84,7 +84,7 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
                         "Surely this was a mistake, you seemed to have requested " + integer + " bosses to fight, correct??"
                     };
 
-                    await RespondAsync(negativeResponse[Global.number.Next(0, negativeResponse.Length)], ephemeral: true);
+                    await RespondAsync(Global.picker(negativeResponse), ephemeral: true);
                     return;
 
                 }
@@ -97,7 +97,7 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
                         "Zero bosses down means zero personal progress. You won't grow doing nothing."
                     };
 
-                    await RespondAsync(zeroResponse[Global.number.Next(0, zeroResponse.Length)], ephemeral: true);
+                    await RespondAsync(Global.picker(zeroResponse), ephemeral: true);
                     return;
 
                 }
@@ -109,11 +109,11 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
                     string bosses = "```";
                     for(int i = 0; i < value; i++){
                         bosses += "\n- ";
-                        bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
-                        bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
-                        bosses += bossList[Global.number.Next(0, bossList.Length)] + ", ";
+                        bosses += Global.picker(bossList) + ", ";
+                        bosses += Global.picker(bossList) + ", ";
+                        bosses += Global.picker(bossList) + ", ";
 
-                        bosses += trounceList[Global.number.Next(0, trounceList.Length)];
+                        bosses += Global.picker(trounceList);
                     }
 
                     await RespondAsync(first + bosses + "```" + Global.lastStatement(), ephemeral: true);
@@ -129,20 +129,20 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
                         integer + "? " + integer + " *sequnences*?? You cannot be serious, you want to fight " + (value * 4) + " bosses, one after the other, and with no reprieve?\nChoose a smaller amount. Preferrably less than or equal to 6 sequences."
                     };
 
-                    await RespondAsync(tooManyResponse[Global.number.Next(0, tooManyResponse.Length)], ephemeral: true);
+                    await RespondAsync(Global.picker(tooManyResponse), ephemeral: true);
                     return;
                 }
             } else {
                 //In case the user mis-types or gives something that isn't a number whatsoever, this will tell them.
                 string[] nonNumber = {
-                    "Excuse me, but I was expecting a number, like " + Global.number.Next(1, 6) + ".",
+                    "Excuse me, but I was expecting a number, like 4.",
                     "This must be a mistake " + Context.User.GlobalName + ", but you seem to have given a non-number for a prompt that requires a number.",
                     "Excuse me, but '*" + integer + "*' isn't an acceptable numerical response.",
                     "*" + integer + "*" + " might represent a number in some sort of mathematics, but it is not an acceptable number for this.",
                     "How does one fight *" + integer + "* bosses? Please, provide a reasonable number."
                 };
 
-                await RespondAsync(nonNumber[Global.number.Next(0, nonNumber.Length)], ephemeral: true);
+                await RespondAsync(Global.picker(nonNumber), ephemeral: true);
                 return;
             }
         }
