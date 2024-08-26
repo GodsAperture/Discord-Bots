@@ -273,6 +273,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             await RespondAsync(Global.picker(greeting), components: twoButtons, ephemeral: true);
 
         }
+        //Still broken, fix later.
         if(input == "UserRoles"){
             string[] greetings = {
                 "Hello, I saw you wanted to adjust what roles can participate in an event for `" + Context.Guild.Name + "`, correct?",
@@ -301,17 +302,28 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             return;
 
         }
-        //Due to how Discord behaves, I might not be able to set this up for a little bit.
-        //Not without setting up some really dumb really lengthy code that ends up permanently floating in RAM.
-        // if(input == "DefaultRoles"){
-        //     //Greet the users.
-        //     string[] greetings = {
-        //         "Greetings " + Context.User.GlobalName + "! I heard you were wanting to adjust what roles can always participate in events?",
-        //         "Is `" + Context.Guild.Name + "` in need of default role changes? What roles should it have then?",
-        //         "I see you want to adjust what roles will be included by default, which ones would you want to add or remove?",
-        //         "Hello again " + Context.User.GlobalName + ", "
-        //     };
-        // }
+        if(input == "DefaultRoles"){
+            string[] greetings = {
+
+            };
+
+            ButtonBuilder addButton = new ButtonBuilder().
+            WithCustomId("DefaultRoleAddModal").
+            WithLabel("Add host role").
+            WithStyle(ButtonStyle.Success);
+
+            ButtonBuilder removeButton = new ButtonBuilder().
+            WithCustomId("DefaultRoleRemove").
+            WithLabel("Remove host role").
+            WithStyle(ButtonStyle.Danger);
+
+            MessageComponent twoButtons = new ComponentBuilder().
+            WithButton(addButton).
+            WithButton(removeButton).
+            Build();
+
+            await RespondAsync(Global.picker(greetings), components: twoButtons, ephemeral: true);
+        }
         if(input == "Drawing"){ 
             ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
             int count = thisServer.EventId.Count();
@@ -518,6 +530,8 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
     }
 
+
+
     //This interaction handler allows users with the
     //appropriate roles to join an event.
     [ComponentInteraction("ParticipationHandler")]
@@ -594,6 +608,8 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
     }
 
+
+
     //This interaction handler prompts the user to provide a
     //role ID to be added to the default roles.
     [ComponentInteraction("HostRoleAddModal")]
@@ -615,10 +631,10 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                 eventDB.SaveChanges();
 
                 string[] success = {
-                    "<@" + ulong.Parse(input.ID) + "> has been succesfully added to the host roles of `" + Context.Guild.Name + "`.",
-                    "Good day " + Context.User.GlobalName + ", members of the role <@" + ulong.Parse(input.ID) + "> may now host events.",
-                    "Host roles have been updated for this server, and now <@" + ulong.Parse(input.ID) + "> is able to host and manage events.",
-                    "I've successfully updated the host roles for events. Now, <@" + ulong.Parse(input.ID) + "> users may handle events." 
+                    Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " has been succesfully added to the host roles of `" + Context.Guild.Name + "`.",
+                    "Good day " + Context.User.GlobalName + ", members of the role " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " may now host events.",
+                    "Host roles have been updated for this server, and now " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " is able to host and manage events.",
+                    "I've successfully updated the host roles for events. Now, " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " users may handle events." 
                 };  
 
                 await RespondAsync(Global.picker(success) + Global.lastStatement(), ephemeral: true);
@@ -635,6 +651,200 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                 return;
             }
     }
+
+
+
+    [ComponentInteraction("HostRoleRemove")]
+    async Task removeHostRole(){
+        string[] greetings = {
+            "Good day to you " + Context.User.GlobalName + ", which roles will no longer be able to handle events?",
+            "Are we purging others from handling events? If so, which ones are we barring from this work?",
+            "I see that `" + Context.Guild.Name + "` has requested some roles to be pruned, which ones are to be removed?",
+            "Hello " + Context.User.GlobalName + ", which of the server roles will no longer have event related permissions?"
+        };
+
+        ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+
+        SelectMenuBuilder thisMenu = new SelectMenuBuilder().
+        WithCustomId("RemoveHosts").
+        WithPlaceholder("Which roles will be removed?").
+        WithMinValues(1).
+        WithMaxValues(thisServer.HostRoles.Count());
+
+        for(int i = 0; i < thisServer.HostRoles.Count(); i++){
+            thisMenu.AddOption(Context.Guild.GetRole(ulong.Parse(thisServer.HostRoles[i])).Name, thisServer.HostRoles[i]);
+        }
+
+        MessageComponent finalMenu = new ComponentBuilder().
+        WithSelectMenu(thisMenu).
+        Build();
+
+        await RespondAsync(Global.picker(greetings), components: finalMenu, ephemeral: true);
+    }
+
+    [ComponentInteraction("RemoveHosts")]
+    async Task hostRemovalHandler(string[] input){
+        ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+        //If only one role is removed, a different response will be sent.
+        if(input.Length == 1){
+            string[] removal = {
+                "I have seen to it that the " + Context.Guild.GetRole(ulong.Parse(input[0])).Mention + " role is no longer a host role.",
+                "Greetings " + Context.User.GlobalName + ", " + Context.Guild.GetRole(ulong.Parse(input[0])).Mention + " has been removed from the host roles.",
+                Context.Guild.GetRole(ulong.Parse(input[0])).Mention + " is no longer able to handle server events by default anymore.",
+                "I have completed the necessary paperwork; " + Context.Guild.GetRole(ulong.Parse(input[0])).Mention + " may not handle events by defualt."
+            };
+
+            //Update the roles in the database.
+            thisServer.DefaultUserRoles.Remove(input[0]);
+            eventDB.Update(thisServer);
+            eventDB.SaveChanges();
+
+            await RespondAsync(Global.picker(removal) + Global.lastStatement(), ephemeral: true);
+            return;
+        } else {
+            string[] removals = {
+                "Good day " + Context.User.GlobalName + ", I have removed a total of " + input.Length + " roles from the host roles.",
+                "Greetings, all the selected roles have been removed from the host roles section of the `" + Context.Guild.Name + "` server.",
+                "All " + input.Length + " roles have been removed from the host roles.",
+                Context.User.GlobalName + ", I have removed the roles you requested. They will no longer be able to handle events by default."
+            };
+
+            //Remove all of the picked roles.
+            for(int i = 0; i < input.Length; i++){
+                thisServer.DefaultUserRoles.Remove(input[i]);
+            }
+            eventDB.Update(thisServer);
+            eventDB.SaveChanges();
+
+            await RespondAsync(Global.picker(removals) + Global.lastStatement(), ephemeral: true);
+            return;
+        }
+    }
+
+
+
+    [ComponentInteraction("DefaultRoleAddModal")]
+    async Task DefaultButtonHandler(){
+        await RespondWithModalAsync<HostRoleModal>("DefaultRoleAddModalHandler");
+    }
+
+    [ModalInteraction("DefaultRoleAddModalHandler")]
+    async Task DefaultRoleModalHandler(HostRoleModal input){
+            //Grab all the host roles for this server.
+            ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+            
+            //Check to see if the role ID given is an actual server role.
+            if(Context.Guild.GetRole(ulong.Parse(input.ID)) != null){
+                string roleName = Context.Guild.GetRole(ulong.Parse(input.ID)).Name;
+                thisServer.HostRoles.Add(input.ID);
+                eventDB.SaveChanges();
+
+                string[] success = {
+                    "Good day to you " + Context.User.GlobalName + ", the " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + "role is now approved for all future events.",
+                    "Unless specified otherwise, " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " is now able to attend all server events.",
+                    Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " may now join all future events by default, unlesss stated otherwise.",
+                    "From now on, members with the " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " role will be able to participate in all future events." 
+                };
+
+                await RespondAsync(Global.picker(success) + Global.lastStatement(), ephemeral: true);
+                return;
+            } else {
+                string[] failure = {
+                    "Sorry, but \"" + input + "\" is not an acceptable Role ID. Please double check it's correct.",
+                    "\"" + input + "\" is not the ID of any roles of `" + Context.Guild.Name + "`.",
+                    "There's been an error, what you have provided is not an ID to a server role.",
+                    Context.User.GlobalName + ", the ID you provided is not a valid role ID."
+                };
+
+                await RespondAsync(Global.picker(failure) + Global.lastStatement(), ephemeral: true);
+                return;
+            }
+    }
+
+
+
+    [ComponentInteraction("DefaultRoleRemove")]
+    async Task DefaultRoleRemoval(){
+        ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+
+        if(thisServer.DefaultUserRoles.Count() != 0){
+            string[] greetings = {
+                "Which roles will no longer be able to join events?",
+                "Good day to you " + Context.User.GlobalName + ". What roles will no longer be defaults in `" + Context.Guild.Name + "`?",
+                "I've received word that you wish to revoke default event rights of particular roles, correct?"
+            };
+
+            SelectMenuBuilder thisMenu = new SelectMenuBuilder().
+            WithCustomId("DefaultRoleRemovalHandler").
+            WithPlaceholder("Which roles will be removed?").
+            WithMinValues(1).
+            WithMaxValues(thisServer.DefaultUserRoles.Count());
+
+            //Add all default user roles.
+            for(int i = 0; i < thisServer.DefaultUserRoles.Count(); i++){
+                thisMenu.AddOption(Context.Guild.GetRole(ulong.Parse(thisServer.DefaultUserRoles[i])).Name, thisServer.DefaultUserRoles[i]);
+            }
+
+            MessageComponent finalMenu = new ComponentBuilder().
+            WithSelectMenu(thisMenu).
+            Build();
+
+            await RespondAsync(Global.picker(greetings), components: finalMenu, ephemeral: true);
+            return;
+        } else {
+            string[] noRoles = {
+                "Apologies, but there are no default user roles in `" + Context.Guild.Name + "` to be removed.",
+                Context.User.GlobalName + ", there aren't any default roles in this server for events.",
+                "Ahem, I'm pretty sure you're unable to make the number of default event roles any less than zero.",
+                "There are no roles in the default roles section. If you were to add a few, *then* you would be able to remove some."
+            };
+
+            await RespondAsync(Global.picker(noRoles), ephemeral: true);
+            return;
+        }
+    }
+
+    [ComponentInteraction("DefaultRoleRemovalHandler")]
+    async Task removeRolesHandler(string[] input){
+        ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+        //If only one role is removed, a different response will be sent.
+        if(input.Length == 1){
+            string[] removal = {
+                "I have seen to it that the " + Context.Guild.GetRole(ulong.Parse(input[0])).Mention + " role is no longer a default role.",
+                "Greetings " + Context.User.GlobalName + ", " + Context.Guild.GetRole(ulong.Parse(input[0])).Mention + " has been removed from the default roles.",
+                Context.Guild.GetRole(ulong.Parse(input[0])).Mention + " is no longer able to access server events by default anymore.",
+                "I have completed the necessary paperwork; " + Context.Guild.GetRole(ulong.Parse(input[0])).Mention + " may not join events by defualt."
+            };
+
+            //Update the roles in the database.
+            thisServer.DefaultUserRoles.Remove(input[0]);
+            eventDB.Update(thisServer);
+            eventDB.SaveChanges();
+
+            await RespondAsync(Global.picker(removal) + Global.lastStatement(), ephemeral: true);
+            return;
+        } else {
+            string[] removals = {
+                "Good day " + Context.User.GlobalName + ", I have removed a total of " + input.Length + " roles from the default roles.",
+                "Greetings, all the selected roles have been removed from the default roles section of the `" + Context.Guild.Name + "` server.",
+                "All " + input.Length + " roles have been removed from the default pool of event roles.",
+                Context.User.GlobalName + ", I have removed the roles you requested. They will no longer be able to participate in events by default."
+            };
+
+            //Remove all of the picked roles.
+            for(int i = 0; i < input.Length; i++){
+                thisServer.DefaultUserRoles.Remove(input[i]);
+            }
+            eventDB.Update(thisServer);
+            eventDB.SaveChanges();
+
+            await RespondAsync(Global.picker(removals) + Global.lastStatement(), ephemeral: true);
+            return;
+        }
+        
+    }
+
+
 
     [ComponentInteraction("DrawingSelector")]
     async Task eventMenuHandler(string input){
@@ -740,6 +950,8 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         return;
     }
 
+
+
     [ComponentInteraction("EventAnnouncer")]
     async Task eventAnnouncer(string input){
         CurrentEventsClass thisEvent = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == input).First();
@@ -773,9 +985,5 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         await RespondAsync(finalMessage + Global.lastStatement());
         return;
     }
-    // [ComponentInteraction("UserRolesHandler")]
-    // async Task userRolesHandler(string input){
-    //     CurrentEventsClass thisServer = eventDB.CurrentEvents.Where(x => x.EventId == Context.Guild.Id.ToString() & x.EventName == input).First();
 
-    // }
 }
