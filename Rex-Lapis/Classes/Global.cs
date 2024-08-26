@@ -19,8 +19,12 @@ public static string lastStatement(){
 /// </summary>
 /// <param name="input"></param>
 /// <returns></returns>
-public static string picker(string[] input){
-    return input[number.Next(0, input.Length)];
+public static string picker(IEnumerable<string> input){
+    return input.ElementAt(number.Next(0, input.Count()));
+}
+
+public static int longNum(int max){
+    return number.Next(0, max);
 }
 
 };

@@ -66,7 +66,7 @@ public class AmbrClass : InteractionModuleBase<SocketInteractionContext>{
         }
     }
 
-    [SlashCommand("ambr", "Find information from Genshin Ambr.")]
+    //[SlashCommand("ambr", "Find information from Genshin Ambr.")]
     public async Task ambrCommand(){
         CounterClass.ambrCount++;
         SelectMenuBuilder firstMenu = new SelectMenuBuilder();

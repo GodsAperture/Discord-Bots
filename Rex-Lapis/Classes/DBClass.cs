@@ -32,7 +32,7 @@ namespace RexLapis.Database{
 
     }
 
-    public partial class EventsClass{
+    public partial class ServerClass{
         [Key]
         public string GuildId { get; set; } = "";
         public List<string> EventId { get; set; } = new List<string>();
@@ -42,6 +42,7 @@ namespace RexLapis.Database{
 
     public partial class CurrentEventsClass{
         [Key]
+        public string GuildId { get; set;} = "";
         public string EventId { get; set; } = "";
         public string EventName {get; set; } = "";
         public string Description { get; set; } = "";
@@ -56,7 +57,7 @@ namespace RexLapis.Database{
 
         public virtual DbSet<UserInfoClass> UserInfo { get; set; }
         public virtual DbSet<GenshinIdClass> GenshinInfo { get; set; }
-        public virtual DbSet<EventsClass> Event { get; set;}
+        public virtual DbSet<ServerClass> Server { get; set;}
         public virtual DbSet<CurrentEventsClass> CurrentEvents { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -67,7 +68,7 @@ namespace RexLapis.Database{
         protected override void OnModelCreating(ModelBuilder modelBuilder){
             modelBuilder.Entity<UserInfoClass>().ToTable("UserInfo");
             modelBuilder.Entity<GenshinIdClass>().ToTable("GenshinId");
-            modelBuilder.Entity<EventsClass>().ToTable("Event");
+            modelBuilder.Entity<ServerClass>().ToTable("Server");
             modelBuilder.Entity<CurrentEventsClass>().ToTable("CurrentEvents");
         }
 

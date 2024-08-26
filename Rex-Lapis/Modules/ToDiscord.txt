@@ -1,0 +1,12 @@
+Discord, if you're reading this. I hate that I always lose context between interactions.
+No, I don't want to make a Dictionary to store shit in, because that's annoying.
+I want to be able to receive multiple interactions simultaneously and handle it with a single
+interaction handler isntead of having 10+ interaction handlers.
+
+It is extremely annoying dealing with Discord as it stands.
+I love your platform but I absolutely hate developing my bot on it.
+Please, for the love of God, fix this shit. Support better Modals:
+https://github.com/discord/discord-api-docs/discussions/5883
+
+Also please let users send and receive classes whose members are relevant information.
+This would make information retention much easier.

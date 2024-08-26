@@ -4,6 +4,8 @@ Event:
     CurrentEvents: EventId [KEY], Description, EventRoles, Users
 */
 using System.CodeDom.Compiler;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using RexLapis.Database;
 
@@ -36,12 +38,12 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
     [SlashCommand("event", "Join events you're eligible for.")]
     public async Task EventMethod(){
         string guildId = Context.Interaction.GuildId.ToString()!;
-        string[] serverRoles = eventDB.Event.Where(x => x.GuildId == guildId).First().HostRoles.ToArray();
+        string[] serverRoles = eventDB.Server.Where(x => x.GuildId == guildId).First().HostRoles.ToArray();
 
         //Check to see if a server has been registered.
         //If not, then add their server to the database.
-        if(eventDB.Event.Where(x => x.GuildId == guildId).Count() == 0){
-            eventDB.Event.Add(new RexLapis.Database.EventsClass(){
+        if(eventDB.Server.Where(x => x.GuildId == guildId).Count() == 0){
+            eventDB.Server.Add(new RexLapis.Database.ServerClass(){
                 GuildId = guildId,
                 EventId = [],
                 HostRoles = []
@@ -70,7 +72,6 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         //If a user has rights to generate an event, then this menu will always pop up instead.
         if(isAllowed){
 
-
             //Build a drown down menu to handle events.
             SelectMenuBuilder menuBuilder = new SelectMenuBuilder(){
                 CustomId = "EventMenuSelector",
@@ -83,7 +84,8 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             AddOption("Manage host event roles", "HostRoles").
             AddOption("Manage roles for individual events", "UserRoles").
             AddOption("Manage default event roles", "DefaultRoles").
-            AddOption("Launch an event for the public", "Launch");
+            AddOption("Launch an event for the public", "Announcement").
+            AddOption("Begin drawing names", "Drawing");
 
 
 
@@ -94,10 +96,18 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             return;
         }
 
-        EventsClass thisServer = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+        ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
         if(thisServer.EventId.Count() > 0){
             //Grab a list of all the current server events.
-            List<string> eventList = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId;
+            List<CurrentEventsClass> eventIdList = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString()).ToList();
+            List<string> eventIds = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId;
+            List<string> eventList = new List<string>();
+            string[] greetings = {
+                "Sure, which event would you like to join? It would be very nice to swipe victory against all odds.",
+                "Hello " + Context.User.GlobalName + "! I see you would like to join some of the server events.",
+                "`" + Context.Guild.Name + "` will be delighted to have you join any ongoing events of theirs!",
+                "Understood, I'll begin the paperwork necessary for you to join an event. Just pick one of the events."
+            };
 
             SelectMenuBuilder thisMenu = new SelectMenuBuilder().
             WithCustomId("ParticipationHandler").
@@ -140,11 +150,12 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         }
     }
 
+    //This interaction handler 
     [ComponentInteraction("EventMenuSelector")]
     async Task menuHandler(string input){
         if(input == "EventCreator"){
             //Find out how many events this server currently has.
-            int count = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId.Count();
+            int count = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId.Count();
 
             //I doubt anyone will manage to create more than 10 events, but if somehow
             //someone does or has 10 events, this will prevent them from making more.
@@ -166,16 +177,22 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         }
         if(input == "EventRemoval"){
             //Grab all current events and show them to the user.
-            string[] eventList = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId.ToArray();
-
+            string[] eventIdList = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId.ToArray();
             SelectMenuBuilder thisMenu = new SelectMenuBuilder().
             WithCustomId("EventRemover").
             WithMinValues(1).
-            WithMaxValues(eventList.Length);
+            WithMaxValues(eventIdList.Length);
+
+            string[] greetings = {
+                "Which event is being finished up? I'll begin the paper work to finish it.",
+                "Greetings " + Context.User.GlobalName + ". Which of these events are being removed?",
+                "Is an event coming to an end? Tell me which one, and I'll begin the clean up for you.",
+                "Hello again " + Context.User.GlobalName + ", I understand there is an event to be taken down from the board?"
+            };
 
             //Add all the events into the events list.
-            for(int i = 0; i < eventList.Length; i++){
-                thisMenu.AddOption(eventList[i], eventList[i]);
+            for(int i = 0; i < eventIdList.Length; i++){
+                thisMenu.AddOption(eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == eventIdList[i]).First().EventName, eventIdList[i]);
             }
 
             MessageComponent finalMenu = new ComponentBuilder().
@@ -183,12 +200,24 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             Build();
 
             //Present the menu to the user to delete events.
-            await RespondAsync(components: finalMenu, ephemeral: true);
+            await RespondAsync(Global.picker(greetings), components: finalMenu, ephemeral: true);
             return;
         }
         if(input == "Participation"){
             //Grab a list of all the current server events.
-            List<string> eventList = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId;
+            List<CurrentEventsClass> eventIdList = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString()).ToList();
+            List<string> eventIds = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId;
+            List<string> eventList = new List<string>();
+            string[] greetings = {
+                "Sure, which event would you like to join? It would be very nice to swipe victory against all odds.",
+                "Hello " + Context.User.GlobalName + "! I see you would like to join some of the server events.",
+                "`" + Context.Guild.Name + "` will be delighted to have you join any ongoing events of theirs!",
+                "Understood, I'll begin the paperwork necessary for you to join an event. Just pick one of the events."
+            };
+
+            for(int i = 0; i < eventIdList.Count(); i++){
+                eventList.Add(eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString()).ElementAt(i).EventName);
+            }
 
             SelectMenuBuilder thisMenu = new SelectMenuBuilder().
             WithCustomId("ParticipationHandler").
@@ -200,13 +229,13 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             //Find all server events and find whether or not the user is a participant.
             for(int i = 0; i < eventList.Count(); i++){
                 //Find the events that are all in the server and with the event names.
-                CurrentEventsClass participants = eventDB.CurrentEvents.Where(x => x.EventId == Context.Guild.Id.ToString() & x.EventName == eventList[i]).First();
+                CurrentEventsClass participants = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
                 if(participants.Users.Contains(Context.User.Id.ToString())){
                     isJoined = "Joined";
                 } else {
                     isJoined = "Not joined";
                 }
-                thisMenu.AddOption(eventList[i], eventList[i], isJoined);
+                thisMenu.AddOption(eventList[i], eventIds[i], isJoined);
             }
 
             //Finalize the menu and present it to the user.
@@ -250,7 +279,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                 "I saw your request to adjust roles; I am now able to assist you in that endeavour."
             };
             //Grab this server's database profile to get its events.
-            EventsClass thisServer = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+            ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
 
             SelectMenuBuilder thisMenu = new SelectMenuBuilder().
             WithCustomId("UserRolesHandler").
@@ -270,20 +299,114 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             return;
 
         }
-        if(input == "DefaultRoles"){
-            //Greet the users.
-            string[] greetings = {
-                "Greetings " + Context.User.GlobalName + "! I heard you were wanting to adjust what roles can always participate in events?",
-                "Is `" + Context.Guild.Name + "` in need of default role changes? What roles should it have then?",
-                "I see you want to adjust what roles will be included by default, which ones would you want to add or remove?",
-                "Hello again " + Context.User.GlobalName + ", "
-            };
-        }
-        if(input == "Drawing"){
+        //Due to how Discord behaves, I might not be able to set this up for a little bit.
+        //Not without setting up some really dumb really lengthy code that ends up permanently floating in RAM.
+        // if(input == "DefaultRoles"){
+        //     //Greet the users.
+        //     string[] greetings = {
+        //         "Greetings " + Context.User.GlobalName + "! I heard you were wanting to adjust what roles can always participate in events?",
+        //         "Is `" + Context.Guild.Name + "` in need of default role changes? What roles should it have then?",
+        //         "I see you want to adjust what roles will be included by default, which ones would you want to add or remove?",
+        //         "Hello again " + Context.User.GlobalName + ", "
+        //     };
+        // }
+        if(input == "Drawing"){ 
+            ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+            int count = thisServer.EventId.Count();
+            string[] eventNames = new string[count];
+            //Check to see how many server events there are.
+            //If there are events, then proceed.
+            //If there are no event, then inform the user and end the interaction.
+            if(count > 0){
+                string[] greetings = {
+                    "Hello " + Context.User.GlobalName + ", is time for another event giveaway?",
+                    "Greetings " + Context.User.GlobalName + ", which event will we be doing drawings for?",
+                    "I see, is it time to draw names for an event in `" + Context.Guild.Name + "`? I will fetch the raffle box.",
+                    "`" + Context.Guild.Name + "` is picking names now? I would love to see who gets drawn!"
+                };
 
+                for(int i = 0; i < eventNames.Length; i++){
+                    eventNames[i] = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisServer.EventId[i]).First().EventName;
+                }
+
+                SelectMenuBuilder thisMenu = new SelectMenuBuilder().
+                WithCustomId("DrawingSelector").
+                WithPlaceholder("Please, select a server event.").
+                WithMinValues(1).
+                WithMaxValues(1);
+
+                //Add all current server events to the select menu.
+                for(int i = 0; i < count; i++){
+                    thisMenu.AddOption(eventNames[i], thisServer.EventId[i], "User count: " + eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisServer.EventId[i]).First().Users.Count().ToString());
+                }
+
+                MessageComponent finalMenu = new ComponentBuilder().
+                WithSelectMenu(thisMenu).
+                Build();
+
+                //Present the drop down menu to the user and await a choice.
+                await RespondAsync(Global.picker(greetings), components: finalMenu, ephemeral: true);
+                return;
+            } else {
+                string[] apologies = {
+                    "Sorry, but there are no events in `" + Context.Guild.Name + "` right now.",
+                    "Hello " + Context.User.GlobalName + ", I'm sorry to inform you, but there are no events going on in this server.",
+                    "Unfortunately, `" + Context.Guild.Name + "` doesn't have any events right now. Perhaps, you should make one?",
+                    "Apologies, but there are currently no events going on in the server. Perhaps you should ask for one to be made?" 
+                };
+
+                //Let the user know there are no events and end the interaction.
+                await RespondAsync(Global.picker(apologies) + Global.lastStatement(), ephemeral: true);
+                return;
+            }
+
+        }
+        if(input == "Announcement"){
+            ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+
+            //If there are no events, then notify the user.
+            if(thisServer.EventId.Count() == 0){
+                string[] noEvents = {
+                    "Apologies " + Context.User.GlobalName + ", but there are currently no events to notify anyone about.",
+                    "`" + Context.Guild.Name + "` is not hosting any events right now. Why not make some first and *then* announce them?",
+                    "While I understands you may be eager to tell everyone of your events, you have never created any with me. Try making one first.",
+                    Context.User.GlobalName + ", I checked twice, but this server does not have any ongoing events."
+                };
+
+                await RespondAsync(Global.picker(noEvents) + Global.lastStatement(), ephemeral:true);
+                return;
+            }
+
+            string[] greetings = {
+                "Hello " + Context.User.GlobalName + ", which event would you like to announce today?",
+                "Good day to you, which `" + Context.Guild.Name + "` event are we going to tell everyone about?",
+                "I see, it's time to tell everyone about an upcoming event in `" + Context.Guild.Name + "`, yes?",
+                "Ah, so we're going to be telling others of an event now? Good, which one?"
+            };
+
+            
+            SelectMenuBuilder thisMenu = new SelectMenuBuilder().
+            WithCustomId("EventAnnouncer").
+            WithPlaceholder("Please, select an available event.").
+            WithMinValues(1).
+            WithMaxValues(1);
+
+            for(int i = 0; i < thisServer.EventId.Count(); i++){
+                thisMenu.AddOption(eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisServer.EventId[i]).First().EventName, thisServer.EventId[i]);
+            }
+
+            MessageComponent finalMenu = new ComponentBuilder().
+            WithSelectMenu(thisMenu).
+            Build();
+
+            //Greet the user and present the menu to them.
+            await RespondAsync(Global.picker(greetings), components: finalMenu, ephemeral: true);
+            return;
         }
     }
 
+    //This interaction handler is responsible for letting hosts
+    //create the events for the server.
     [ModalInteraction("EventCreator")]
     async Task eventHandler(EventModal input){
 
@@ -307,18 +430,19 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         //roles will be added separately because Discord doesn't allow select menus in modals...why though??
         //The server's default event roles are still assigned to the event though.
         CurrentEventsClass thisEvent = new CurrentEventsClass();
-        thisEvent.EventId = Context.Guild.Id.ToString();
+        thisEvent.GuildId = Context.Guild.Id.ToString();
+        thisEvent.EventId = Context.Interaction.Id.ToString();
         thisEvent.EventName = input.Name;
         thisEvent.Description = input.Description;
-        thisEvent.EventRoles = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().DefaultUserRoles;
+        thisEvent.EventRoles = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().DefaultUserRoles;
 
         //guildEvent will be used to update the guild's ongoing events.
-        EventsClass guildEvent = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
-        guildEvent.EventId.Add(input.Name);
+        ServerClass guildEvent = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+        guildEvent.EventId.Add(Context.Interaction.Id.ToString());
 
         //Add thisEvent to tracked changes and then save it to the database.
         eventDB.CurrentEvents.Add(thisEvent);
-        eventDB.Event.Update(guildEvent);
+        eventDB.Server.Update(guildEvent);
         eventDB.SaveChanges();
 
         string[] success = {
@@ -333,10 +457,11 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         return;
     }
 
+    //This interaction handler lets hosts remove server events.
     [ComponentInteraction("EventRemover")]
     async Task eventRemover(string[] input){
         //Find out how many ongoing events are going on in the server.
-        string[] allEvents = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId.ToArray();
+        string[] allEvents = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId.ToArray();
         int count = allEvents.Length;
 
         if(count == 0){
@@ -351,24 +476,27 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             return;
         }
 
-        EventsClass guildEvent = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+        ServerClass guildEvent = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
         
         //remove all instances of the mentioned events from the Events table and the CurrentEvents table.
         for(int i = 0; i < input.Length; i++){
             guildEvent.EventId.Remove(input[i]);
-            eventDB.CurrentEvents.Remove(eventDB.CurrentEvents.Where(x => x.EventId == Context.Guild.Id.ToString() & x.EventName == input[i]).First());
+            eventDB.CurrentEvents.Remove(eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == input[i]).First());
         }
 
-        eventDB.Event.Update(guildEvent);
+        string eventName = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == input[0]).First().EventName;
+
+        eventDB.Server.Update(guildEvent);
         eventDB.SaveChanges();
 
         //This will change dialogue depending on whether more than one event was removed.
         if(count == 1){
+
             string[] singleRemoval = {
-                "I have removed `" + input[0] + "` from the events. You're free to make another now.",
-                "`" + input[0] + "` has been deleted from the records. No further action is required.",
-                Context.User.GlobalName + ", I have taken the steps necessary to clear `" + input[0] + "` from the active events list.",
-                "`" + input[0] + "` has been removed from the events list for `" + Context.Guild.Name + "."
+                "I have removed `" + eventName + "` from the events. You're free to make another now.",
+                "`" + eventName + "` has been deleted from the records. No further action is required.",
+                Context.User.GlobalName + ", I have taken the necessary steps to clear `" + eventName + "` from the active events list.",
+                "`" + eventName + "` has been removed from the events list for `" + Context.Guild.Name + "`."
             };
 
             await RespondAsync(Global.picker(singleRemoval) + Global.lastStatement(), ephemeral: true);
@@ -376,10 +504,10 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
         } else {
             string[] multipleRemoval = {
-                count.ToString() + " total events have been removed from the `" + Context.Guild.Name + "` events list.",
-                "All " + count.ToString() + " have been removed from the events board. You're free to make up to " + (10 - count).ToString() + "new events.",
+                count.ToString() + " events have been removed from the `" + Context.Guild.Name + "` events list.",
+                "All " + count.ToString() + " events have been removed from the events board. You're free to make up to " + (10 - count).ToString() + " new events.",
                 Context.User.GlobalName + ", all the events have been removed, as requested. Now, perhaps a rest is in order?",
-                "All the server events mentioned have been wiped from the board. Perhaps you should contact " + Context.Guild.Owner + " and ask whether another should be started?"
+                "All the server events mentioned have been wiped from the board. Perhaps you should contact " + Context.Guild.Owner.Mention + " and ask whether another should be started?"
             };
 
             await RespondAsync(Global.picker(multipleRemoval) + Global.lastStatement(), ephemeral: true);
@@ -388,9 +516,11 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
     }
 
+    //This interaction handler allows users with the
+    //appropriate roles to join an event.
     [ComponentInteraction("ParticipationHandler")]
     async Task participationHandler(string input){
-        CurrentEventsClass thisEvent = eventDB.CurrentEvents.Where(x => x.EventId == Context.Guild.Id.ToString() & x.EventName == input).First();
+        CurrentEventsClass thisEvent = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == input).First();
         //Check if the user has joined already. If they have, they'll be asked if they want to leave.
         //If not, they'll be asked if they want to join, if they meet the criteria.
         if(thisEvent.Users.Contains(Context.User.Id.ToString())){
@@ -415,7 +545,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
             //Extract all the role names.
             for(int i = 0; i < allRoles.Length; i++){
-                userRoles[i] = allRoles[i].Name;
+                userRoles[i] = allRoles[i].Id.ToString();
             }
 
             bool hasRole = false;
@@ -439,8 +569,11 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                 };
                 thisEvent.Users.Add(Context.User.Id.ToString());
                 eventDB.SaveChanges();
+                CurrentEventsClass currentEvent = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == input).First();
+                string eventName = currentEvent.EventName;
+                string eventDescription = currentEvent.Description;
 
-                await RespondAsync(Global.picker(success) + Global.lastStatement(), ephemeral: true);
+                await RespondAsync(Global.picker(success) + "```" + eventName + "\n\n========\n\n" + eventDescription + "```" + Global.lastStatement(), ephemeral: true);
                 return;
             } else {
                 string[] apology = {
@@ -459,15 +592,20 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
     }
 
+    //This interaction handler prompts the user to provide a
+    //role ID to be added to the default roles.
     [ComponentInteraction("HostRoleAddModal")]
     async Task addRoleModal(){
         await RespondWithModalAsync<HostRoleModal>("HostRoleAdd");
+        return;//I know it's not necessary to put `return` here, but I'm doing it out of habit.
     }
 
+    //This interaction handler lets the owner/admin add host roles
+    //to this server's event manager.
     [ModalInteraction("HostRoleAdd")]
     async Task HostButtonHandler(HostRoleModal input){
             //Grab all the host roles for this server.
-            EventsClass thisServer = eventDB.Event.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+            ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
             
             if(Context.Guild.GetRole(ulong.Parse(input.ID)) != null){
                 string roleName = Context.Guild.GetRole(ulong.Parse(input.ID)).Name;
@@ -479,7 +617,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                     "Good day " + Context.User.GlobalName + ", members of the role <@" + ulong.Parse(input.ID) + "> may now host events.",
                     "Host roles have been updated for this server, and now <@" + ulong.Parse(input.ID) + "> is able to host and manage events.",
                     "I've successfully updated the host roles for events. Now, <@" + ulong.Parse(input.ID) + "> users may handle events." 
-                };
+                };  
 
                 await RespondAsync(Global.picker(success) + Global.lastStatement(), ephemeral: true);
                 return;
@@ -492,16 +630,150 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                 };
 
                 await RespondAsync(Global.picker(failure) + Global.lastStatement(), ephemeral: true);
+                return;
             }
     }
 
+    [ComponentInteraction("DrawingSelector")]
+    async Task eventMenuHandler(string input){
+        CurrentEventsClass thisEvent = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == input).First();
+        string[] theRoles = thisEvent.EventRoles.ToArray();
+        string[] greetings = {
+            "Greetings " + Context.User.GlobalName + ", which role will you pick the winner to be drawn from?",
+            "I see, what role should we get use for the `" + thisEvent.EventName + "`?",
+            "What role shall be picked today for the event? I'm interested to see who will be selected.",
+            "While I might not be displaying it, I am quite curious to see who is going to claim victory for this raggle."
+        };
+
+        //If the server has no restrictions on entry, everyone is included by default.
+        if(thisEvent.EventRoles.Count() == 0){
+            await GiveawayRoleHandler("null");
+        }
+
+        //We'll keep track of how many of each user each role has.
+        int[] roleCounts = new int[theRoles.Length];
+
+
+        //If there are no users, then notify the host.
+        //Otherwise, this proceeds.
+        if(thisEvent.Users.Count() == 0){
+            string[] failure = {
+                "Excuse me " + Context.User.GlobalName + ", but it seems that there are no people in `" + input + "`.",
+                "I am quite certain that you can't draw names for any event that has a member count of 0. Maybe try waiting for more members?",
+                Context.User.GlobalName + ", you should probably either announce this to the server or wait for more members.",
+                "There are no members in this event, perhaps try waiting longer or announcing this event to " + Context.Guild.Name + "?"
+            };
+
+            await RespondAsync(Global.picker(failure) + Global.lastStatement(), ephemeral: true);
+
+        }
+
+        //Find out how many of each role there is in this event.
+        for(int i = 0; i < roleCounts.Length; i++){
+            for(int k = 0; k < thisEvent.Users.Count(); k++){
+                if(
+                    Context.Guild.GetUser(ulong.Parse(thisEvent.Users[k])).Roles.Any(x => x.Id.ToString() == theRoles[i])
+                ){
+                    roleCounts[i]++;
+                }
+            }
+        }
+
+        SelectMenuBuilder thisMenu = new SelectMenuBuilder().
+        WithCustomId("DrawingRoles").
+        WithPlaceholder("Pick a role to draw from!");
+
+        //Add the event roles to a select menu with the number of this role remaining.
+        //The part received will take the form "{length}inputRole" so I can lex it later and retain the chosen event.   
+        for(int i = 0; i < theRoles.Length; i++){
+            thisMenu.AddOption(Context.Guild.GetRole(ulong.Parse(theRoles[i])).Name, input + '|' + theRoles[i], "User Count: " + roleCounts[i].ToString());
+        }
+
+        MessageComponent finalMenu = new ComponentBuilder().
+        WithSelectMenu(thisMenu).
+        Build();
+
+        await RespondAsync(Global.picker(greetings), components: finalMenu, ephemeral: true);
+        return;
+
+    }
+
+    [ComponentInteraction("DrawingRoles")]
+    async Task GiveawayRoleHandler(string input){
+        if(input == "null"){
+            ulong userPicked = Context.Guild.Users.ElementAt(Global.longNum(Context.Guild.Users.Count())).Id;
+
+            await RespondAsync(text: Context.Guild.GetUser(userPicked).GlobalName);
+        }
+
+        //EventId|Role
+        string[] thisInput = input.Split('|');
+        string[] users = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisInput[0]).First().Users.ToArray();
+        List<string> approvedList = new List<string>();
+
+        //Find all users in the event who have the role.
+        for(int i = 0; i < users.Length; i++){
+            if(Context.Guild.GetUser(ulong.Parse(users[i])).Roles.Any(x => x.Id.ToString() == thisInput[1])){
+                approvedList.Add(users[i]);
+            }
+        }
+
+        //Pick a random user.
+        ulong pickedUser = ulong.Parse(Global.picker(approvedList));
+
+        //Find the event and remove the user from the event.
+        CurrentEventsClass thisEvent = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisInput[0]).First();
+        thisEvent.Users.Remove(pickedUser.ToString());
+        eventDB.CurrentEvents.Update(thisEvent);
+        eventDB.SaveChanges();
+
+        string[] congrats = {
+            "Everyone, please give a round of applause to " + Context.Guild.GetUser(pickedUser).Mention + " for claiming the victory!",
+            "Congratulations is due to " + Context.Guild.GetUser(pickedUser).Mention + " for their newly obtained success!",
+            Context.Guild.GetUser(pickedUser).Mention + " is a victor of the `" + eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisInput[0]).First().EventName + "` server event!",
+            "We have a winner, and it is " + Context.Guild.GetUser(pickedUser).Mention + "! My condolences to everyone else, better luck next time!"
+        };
+
+        await RespondAsync(Global.picker(congrats));
+        return;
+    }
+
+    [ComponentInteraction("EventAnnouncer")]
+    async Task eventAnnouncer(string input){
+        CurrentEventsClass thisEvent = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == input).First();
+
+        string[] blessings = {
+            "\n\nI am personally wishing everyone luck this event!",
+            "\n\nMay the archons smile down on you with favor!",
+            "\n\nGood luck to everyone, and may only the best be chosen!",
+            "\n\nI hope that everyone here enjoys their time in this event!"
+        };
+
+        string finalMessage = "```\n" + thisEvent.EventName;
+        finalMessage += "\n\n========\n\n";
+        finalMessage += thisEvent.Description + "```\n";
+
+        finalMessage += "Eligible members:\n";
+        
+        //If there are no role restrictions, then everyone is included.
+        //If there are restrictions, then only the selected roles are included.
+        if(thisEvent.EventRoles.Count() == 0){
+            finalMessage += "- <@everyone>";
+        } else {
+            for(int i = 0; i < thisEvent.EventRoles.Count(); i++){
+                finalMessage += "- " + Context.Guild.GetRole(ulong.Parse(thisEvent.EventRoles[i])).Mention + "\n";
+            }
+        }
+
+        //Rex Lapis personally wishes every participant luck.
+        finalMessage += Global.picker(blessings);
+
+        await RespondAsync(finalMessage + Global.lastStatement());
+        return;
+    }
     // [ComponentInteraction("UserRolesHandler")]
     // async Task userRolesHandler(string input){
     //     CurrentEventsClass thisServer = eventDB.CurrentEvents.Where(x => x.EventId == Context.Guild.Id.ToString() & x.EventName == input).First();
 
-    // }
-
-    // async Task<IModal> ReturnRespondWithModalAsync(string customId, RequestOptions? options = null, Action<ModalBuilder>? modifyModal = null){
-        
     // }
 }
