@@ -38,8 +38,6 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
     [SlashCommand("event", "Join events you're eligible for.")]
     public async Task EventMethod(){
         string guildId = Context.Interaction.GuildId.ToString()!;
-        string[] serverRoles = eventDB.Server.Where(x => x.GuildId == guildId).First().HostRoles.ToArray();
-
         //Check to see if a server has been registered.
         //If not, then add their server to the database.
         if(eventDB.Server.Where(x => x.GuildId == guildId).Count() == 0){
@@ -51,6 +49,10 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
             eventDB.SaveChanges();
         }
+
+        //If there are any server roles, they will be grabbed here.
+        string[] serverRoles = eventDB.Server.Where(x => x.GuildId == guildId).First().HostRoles.ToArray();
+
 
         //isAllowed determines if the user is allowed to create events.
         bool isAllowed = false;
