@@ -273,7 +273,6 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             await RespondAsync(Global.picker(greeting), components: twoButtons, ephemeral: true);
 
         }
-        //Still broken, fix later.
         if(input == "UserRoles"){
             string[] greetings = {
                 "Hello, I saw you wanted to adjust what roles can participate in an event for `" + Context.Guild.Name + "`, correct?",
@@ -283,7 +282,6 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             };
             //Grab this server's database profile to get its events.
             ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
-
             SelectMenuBuilder thisMenu = new SelectMenuBuilder().
             WithCustomId("UserRolesHandler").
             WithMinValues(1).
@@ -291,7 +289,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
             //Add all current server events to the list.
             for(int i = 0; i < thisServer.EventId.Count(); i++){
-                thisMenu.AddOption(thisServer.EventId[i], thisServer.EventId[i]);
+                thisMenu.AddOption(eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisServer.EventId[i]).First().EventName, thisServer.EventId[i]);
             }
 
             MessageComponent finalMenu = new ComponentBuilder().
@@ -304,17 +302,17 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         }
         if(input == "DefaultRoles"){
             string[] greetings = {
-
+                "Greetings " + Context.User.GlobalName + ". I am here to help you adjust the default event roles of the server.",
             };
 
             ButtonBuilder addButton = new ButtonBuilder().
             WithCustomId("DefaultRoleAddModal").
-            WithLabel("Add host role").
+            WithLabel("Add default role").
             WithStyle(ButtonStyle.Success);
 
             ButtonBuilder removeButton = new ButtonBuilder().
             WithCustomId("DefaultRoleRemove").
-            WithLabel("Remove host role").
+            WithLabel("Remove default role").
             WithStyle(ButtonStyle.Danger);
 
             MessageComponent twoButtons = new ComponentBuilder().
@@ -418,7 +416,47 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             return;
         }
     }
+////Adjust roles for individual events in the server
+    [ComponentInteraction("UserRolesHandler")]
+    async Task eventUserRolesHandler(){
+        string[] greetings = {
+            "Greetings " + Context.User.GlobalName + ", I saw your request to change what roles can participate in an event.",
+            "Which event from `" + Context.Guild.Name + "` are we adjusting?",
+            "I have received your request for adjusting the roles of an event; I'm now able to assist you in that regard."
+        };
 
+        ButtonBuilder addButton = new ButtonBuilder().
+        WithCustomId("UserRoleAddModal").
+        WithLabel("Add user role").
+        WithStyle(ButtonStyle.Success);
+
+        ButtonBuilder removeButton = new ButtonBuilder().
+        WithCustomId("UserRoleRemover").
+        WithLabel("Remove user role").
+        WithStyle(ButtonStyle.Danger);
+
+        MessageComponent twoButtons = new ComponentBuilder().
+        WithButton(addButton).
+        WithButton(removeButton).
+        Build();
+
+        await RespondAsync(Global.picker(greetings), components: twoButtons, ephemeral: true);
+
+    }
+
+    //TO DO Later when I'm not dying inside from all the code.
+    // [ComponentInteraction("UserRoleAddModal")]
+    // async Task addUserRoleModal(){
+    //     string[] greetings = {
+
+    //     };
+
+
+    // }
+
+
+
+////Event management interactions
     //This interaction handler is responsible for letting hosts
     //create the events for the server.
     [ModalInteraction("EventCreator")]
@@ -531,7 +569,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
     }
 
 
-
+////Participation related handler
     //This interaction handler allows users with the
     //appropriate roles to join an event.
     [ComponentInteraction("ParticipationHandler")]
@@ -609,7 +647,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
     }
 
 
-
+////Host related interaction handlers
     //This interaction handler prompts the user to provide a
     //role ID to be added to the default roles.
     [ComponentInteraction("HostRoleAddModal")]
@@ -740,7 +778,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                 eventDB.SaveChanges();
 
                 string[] success = {
-                    "Good day to you " + Context.User.GlobalName + ", the " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + "role is now approved for all future events.",
+                    "Good day to you " + Context.User.GlobalName + ", the " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " role is now approved for all future events.",
                     "Unless specified otherwise, " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " is now able to attend all server events.",
                     Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " may now join all future events by default, unlesss stated otherwise.",
                     "From now on, members with the " + Context.Guild.GetRole(ulong.Parse(input.ID)).Mention + " role will be able to participate in all future events." 
