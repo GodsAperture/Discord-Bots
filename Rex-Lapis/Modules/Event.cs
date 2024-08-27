@@ -774,7 +774,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             //Check to see if the role ID given is an actual server role.
             if(Context.Guild.GetRole(ulong.Parse(input.ID)) != null){
                 string roleName = Context.Guild.GetRole(ulong.Parse(input.ID)).Name;
-                thisServer.HostRoles.Add(input.ID);
+                thisServer.DefaultUserRoles.Add(input.ID);
                 eventDB.SaveChanges();
 
                 string[] success = {
@@ -950,10 +950,19 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
     [ComponentInteraction("DrawingRoles")]
     async Task GiveawayRoleHandler(string input){
+
+        //If there are no roles, it will default to picking from everyone in the server.
         if(input == "null"){
             ulong userPicked = Context.Guild.Users.ElementAt(Global.longNum(Context.Guild.Users.Count())).Id;
 
-            await RespondAsync(text: Context.Guild.GetUser(userPicked).GlobalName);
+            string[] otherCongrats = {
+                "Everyone, please give a round of applause to " + Context.Guild.GetUser(userPicked).Mention + " for claiming the victory!",
+                "Congratulations is due to " + Context.Guild.GetUser(userPicked).Mention + " for their newly obtained success!",
+                Context.Guild.GetUser(userPicked).Mention + " is a victor of the `" + eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisInput[0]).First().EventName + "` server event!",
+                "We have a winner, and it is " + Context.Guild.GetUser(userPicked).Mention + "! My condolences to everyone else, better luck next time!"
+            };
+
+            await RespondAsync(Global.picker(otherCongrats) + Global.lastStatement());
         }
 
         //EventId|Role
