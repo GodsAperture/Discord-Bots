@@ -950,11 +950,12 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
     [ComponentInteraction("DrawingRoles")]
     async Task GiveawayRoleHandler(string input){
+        //EventId|Role
+        string[] thisInput = input.Split('|');
 
         //If there are no roles, it will default to picking from everyone in the server.
         if(input == "null"){
             ulong userPicked = Context.Guild.Users.ElementAt(Global.longNum(Context.Guild.Users.Count())).Id;
-
             string[] otherCongrats = {
                 "Everyone, please give a round of applause to " + Context.Guild.GetUser(userPicked).Mention + " for claiming the victory!",
                 "Congratulations is due to " + Context.Guild.GetUser(userPicked).Mention + " for their newly obtained success!",
@@ -965,8 +966,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             await RespondAsync(Global.picker(otherCongrats) + Global.lastStatement());
         }
 
-        //EventId|Role
-        string[] thisInput = input.Split('|');
+
         string[] users = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == thisInput[0]).First().Users.ToArray();
         List<string> approvedList = new List<string>();
 
