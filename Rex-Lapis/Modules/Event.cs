@@ -98,44 +98,11 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
             return;
         }
 
+        //Otherwise, the user is not a host and will be asked if they want to join an event.
         ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
         if(thisServer.EventId.Count() > 0){
-            //Grab a list of all the current server events.
-            List<CurrentEventsClass> eventIdList = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString()).ToList();
-            List<string> eventIds = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First().EventId;
-            List<string> eventList = new List<string>();
-            string[] greetings = {
-                "Sure, which event would you like to join? It would be very nice to swipe victory against all odds.",
-                "Hello " + Context.User.GlobalName + "! I see you would like to join some of the server events.",
-                "`" + Context.Guild.Name + "` will be delighted to have you join any ongoing events of theirs!",
-                "Understood, I'll begin the paperwork necessary for you to join an event. Just pick one of the events."
-            };
-
-            SelectMenuBuilder thisMenu = new SelectMenuBuilder().
-            WithCustomId("ParticipationHandler").
-            WithPlaceholder("Which event did you want to join or leave?").
-            WithMinValues(1).
-            WithMaxValues(1);
-            string isJoined;
-
-            //Find all server events and find whether or not the user is a participant.
-            for(int i = 0; i < eventList.Count(); i++){
-                //Find the events that are all in the server and with the event names.
-                CurrentEventsClass participants = eventDB.CurrentEvents.Where(x => x.EventId == Context.Guild.Id.ToString() & x.EventName == eventList[i]).First();
-                if(participants.Users.Contains(Context.User.Id.ToString())){
-                    isJoined = "Joined";
-                } else {
-                    isJoined = "Not joined";
-                }
-                thisMenu.AddOption(eventList[i], eventList[i], isJoined);
-            }
-
-            //Finalize the menu and present it to the user.
-            MessageComponent finalMenu = new ComponentBuilder().
-            WithSelectMenu(thisMenu).
-            Build();
-
-            await RespondAsync(components: finalMenu, ephemeral: true);
+            await menuHandler("Participation");
+            return;
         }
         //If the server currently has no active events, then nothing else will happen.
         else{
