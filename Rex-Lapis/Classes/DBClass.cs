@@ -38,6 +38,10 @@ namespace RexLapis.Database{
         public List<string> EventId { get; set; } = new List<string>();
         public List<string> HostRoles { get; set; } = new List<string>();
         public List<string> DefaultUserRoles { get; set; } = new List<string>();
+        public List<string> Roles { get; set; } = new List<string>();
+        public List<string> RoleImages { get; set; } = new List<string>();
+        public List<string> RoleDescriptions { get; set; } = new List<string>();
+        public List<string> RoleColors { get; set; } = new List<string>();
     }
 
     public partial class CurrentEventsClass{

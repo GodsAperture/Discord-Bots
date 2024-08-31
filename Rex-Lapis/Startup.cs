@@ -12,7 +12,16 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using RexLapis.Database;
 using Serilog;
-
+/*
+Permissions:
+Manage Roles
+Send Messages
+Embed Links
+Mention Everyone
+Use External Emojis
+Use External Stickers
+Add Reactions
+*/
 DiscordSocketClient client = new DiscordSocketClient(            
     new DiscordSocketConfig
             {
@@ -23,7 +32,6 @@ DiscordSocketClient client = new DiscordSocketClient(
                 LogLevel = LogSeverity.Info,
                 UseInteractionSnowflakeDate = false
             });
-
 
     var builder = new HostBuilder();
 

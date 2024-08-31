@@ -38,13 +38,17 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
     [SlashCommand("event", "Join events you're eligible for.")]
     public async Task EventMethod(){
         string guildId = Context.Interaction.GuildId.ToString()!;
-        //Check to see if a server has been registered.
-        //If not, then add their server to the database.
-        if(eventDB.Server.Where(x => x.GuildId == guildId).Count() == 0){
+
+        //Check to see if this server is in the database. If not, then add it.
+        if(eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).Count() == 0){
             eventDB.Server.Add(new RexLapis.Database.ServerClass(){
-                GuildId = guildId,
+                GuildId = Context.Guild.Id.ToString(),
                 EventId = [],
-                HostRoles = []
+                HostRoles = [],
+                Roles = [],
+                RoleImages = [],
+                RoleDescriptions = [],
+                RoleColors = []
             });
 
             eventDB.SaveChanges();
@@ -52,7 +56,6 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
 
         //If there are any server roles, they will be grabbed here.
         string[] serverRoles = eventDB.Server.Where(x => x.GuildId == guildId).First().HostRoles.ToArray();
-
 
         //isAllowed determines if the user is allowed to create events.
         bool isAllowed = false;
@@ -585,9 +588,10 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                 string[] success = {
                     "Greetings " + Context.User.GlobalName + ", you have been added to `" + thisEvent.EventName + "`, enjoy!",
                     "I've finished signing off on the paper work. You've been entered into the `" + thisEvent.EventName + "`!",
-                    "You've been included in the `" + Context.Guild.Name + "` server's " + thisEvent.EventName + " event!",
+                    "You've been included in the `" + Context.Guild.Name + "` server's `" + thisEvent.EventName + "` event!",
                     "The criteria for entry has been met. I've placed you in the event roster. So now, good luck and have fun!"
                 };
+                
                 thisEvent.Users.Add(Context.User.Id.ToString());
                 eventDB.SaveChanges();
                 CurrentEventsClass currentEvent = eventDB.CurrentEvents.Where(x => x.GuildId == Context.Guild.Id.ToString() & x.EventId == input).First();

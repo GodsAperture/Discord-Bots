@@ -13,7 +13,6 @@ public static string lastStatement(){
     return Global.finisher[Global.number.Next(0, Global.finisher.Length)];
 }
 
-
 /// <summary>
 /// Given a string array, pseduo-randomly picks a string to return.
 /// </summary>
