@@ -42,8 +42,8 @@ namespace RexLapis.Database{
 
     public partial class ServerRolesClass{
         [Key]
-        public string GuildId { get; set; } = "";
         public string RoleId { get; set; } = "";
+        public string GuildId { get; set; } = "";
         public string RoleImage { get; set; } = "";
         public string RoleDescription { get; set; } = "";
     }
