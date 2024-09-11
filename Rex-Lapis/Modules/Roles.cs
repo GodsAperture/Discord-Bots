@@ -1,105 +1,100 @@
+using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.X509Certificates;
 using Discord.Rest;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RexLapis.Database;
 
 public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
 
     DBClass eventDB = new DBClass();
 
-    private int base16To10(char input){
-        switch(input){
-            case '0':
-                return 0;
-            case '1':
-                return 1;
-            case '2':
-                return 2;
-            case '3':
-                return 3;
-            case '4':
-                return 4;
-            case '5':
-                return 5;
-            case '6':
-                return 6;
-            case '7':
-                return 7;
-            case '8':
-                return 8;
-            case '9':
-                return 9;
-            case 'a':
-                return 10;
-            case 'b':
-                return 11;
-            case 'c':
-                return 12;
-            case 'd':
-                return 13;
-            case 'e':
-                return 14;
-            case 'f':
-                return 15;
-            default:
-                return -1;
-        }
-    }
+    private class RoleModal : IModal {
+        public string Title => "Submit a role ID";
 
-    private Color HexToRGB(string input){
+        [RequiredInput(true)]
+        [InputLabel("RoleID")]
+        [ModalTextInput("Role ID", TextInputStyle.Short, placeholder: "ex: 1160082367675912243")]
+        public string ID { get; set; } = "";
 
-        //Convert the Hex values to the corresponding colors.
-        int R = base16To10(input[0]) * 16 + base16To10(input[1]);
-        int G = base16To10(input[2]) * 16 + base16To10(input[3]);
-        int B = base16To10(input[4]) * 16 + base16To10(input[5]);
+        [RequiredInput(true)]
+        [InputLabel("Description")]
+        [ModalTextInput("Description", TextInputStyle.Paragraph, placeholder: "What is your role for?")]
+        public string Description { get; set; } = "";
 
-        return new Color(R, G, B);
+        [RequiredInput(true)]
+        [InputLabel("ThumbnailURL")]
+        [ModalTextInput("Thumbnail URL", TextInputStyle.Short, placeholder: "ExampleUrl.com/ThisImage.png")]
+        public string ThumbNailUrl { get; set; } = "";
     }
 
     [SlashCommand("roles", "request public roles")]
     async Task RolesMethod(){
         ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
 
-        //Check to see if this server is in the database. If not, then add it.
-        if(eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).Count() == 0){
-            eventDB.Server.Add(new RexLapis.Database.ServerClass(){
-                GuildId = Context.Guild.Id.ToString(),
-                EventId = [],
-                HostRoles = [],
-                Roles = [],
-                RoleImages = [],
-                RoleDescriptions = [],
-                RoleColors = []
-            });
-
-            eventDB.SaveChanges();
-        }
-
-        //Check to see if the user has permissions to manage roles.
+        //Check to see if the user has permissions to manage roles or is the owner.
         //If so, they'll have access to the manager menu.
         if(((SocketGuildUser) (Context.User)).GuildPermissions.Has(GuildPermission.ManageRoles) | Context.User.Id == Context.Guild.OwnerId){
-            //TODO
-            //AddRoles
-            //RemoveRoles
+            string[] greetings = {
+                "Good day to you " + Context.User.GlobalName + ", how may I assist you in adjusting public roles?",
+                "Are we going to be adding roles or removing them from public accessibility in `" + Context.Guild.Name + "`?",
+                "Hello, I am now able to assist you in adjusting the publicly accessible roles for `" + Context.Guild.Name + "`."
+            };
+
+            //This will be for adding a role.
+            ButtonBuilder AddRole = new ButtonBuilder().
+            WithCustomId("AddRole").
+            WithLabel("Add a Role").
+            WithStyle(ButtonStyle.Success).
+            WithDisabled(false);
+
+            //This will be for viewing the roles.
+            ButtonBuilder ViewRole = new ButtonBuilder().
+            WithCustomId("ViewRole").
+            WithLabel("View Roles").
+            WithStyle(ButtonStyle.Primary).
+            WithDisabled(false);
+
+            //This will be for updating the roles.
+            ButtonBuilder EditRole = new ButtonBuilder().
+            WithCustomId("EditRole").
+            WithLabel("Edit Roles").
+            WithStyle(ButtonStyle.Primary).
+            WithDisabled(false);
+
+            //This will be for removing roles.
+            ButtonBuilder RemoveRole = new ButtonBuilder().
+            WithCustomId("RemoveRole").
+            WithLabel("Remove Roles").
+            WithStyle(ButtonStyle.Danger).
+            WithDisabled(false);
+
+            //Combine all the buttons.
+            MessageComponent finalButtons = new ComponentBuilder().
+            WithButton(AddRole).
+            WithButton(ViewRole).
+            WithButton(EditRole).
+            WithButton(RemoveRole).
+            Build();
+
+            await RespondAsync(":egg:\n" + Global.picker(greetings), components: finalButtons, ephemeral: true);
+            return;
+
         }
 
         //If nothing else happens, just call this function.
-        await getRoles("null");
+        await getRoles("null", "null");
 
     }
 
-    /// <summary>
-    /// This function will either display to the user a menu for role selection or tell them there are no roles.
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
-    [ComponentInteraction("roleGetter")]
-    async Task getRoles(string number){
-        ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+    [ComponentInteraction("roleGetter*")]
+    async Task getRoles(string isNull, string number){
+        List<ServerRolesClass> publicRoles = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString()).ToList();
         //For the case where it's called from the original method, I 
         //handle the edge case where the input is not a valid Role ID.
         //This will just put it at the very first role shown.
 
-        if(thisServer.Roles.Count() == 0){
+        if(publicRoles.Count() == 0){
             string[] apologies = {
                 "Sorry, but there are no roles in this server to be obtained freely. Either check for a roles channel or ask staff.",
                 "Sorry, it seems that `" + Context.Guild.Name + "` has not added any roles to the public yet.",
@@ -110,23 +105,24 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
             return;
         }
 
-        //If the input is null, then replace it with the first role.
         if(number == "null"){
             number = "0";
         }
 
-        string RoleID = Context.Guild.GetRole(ulong.Parse(thisServer.Roles[int.Parse(number)])).Id.ToString();
+        string RoleID = publicRoles[0].RoleId;
+        int num = int.Parse(number);
 
-        //The embed will just have the role name, the description, and the image.
-        EmbedBuilder thisEmbed = new EmbedBuilder().
-        WithDescription(thisServer.RoleDescriptions[int.Parse(number)]).
-        WithImageUrl(thisServer.RoleImages[int.Parse(number)]).
-        WithColor(HexToRGB(thisServer.RoleColors[int.Parse(number)])).
-        WithTitle(Context.Guild.GetRole(ulong.Parse(thisServer.Roles[int.Parse(number)])).Name);
+        //The embed will just have the role name, the description, the image, and use the role color.
+        EmbedBuilder thisEmbed = new EmbedBuilder();
+        thisEmbed.WithFooter((num + 1) + " of " + publicRoles.Count());
+        thisEmbed.WithDescription(publicRoles[num].RoleDescription);
+        thisEmbed.WithImageUrl(publicRoles[num].RoleImage);
+        thisEmbed.WithColor(Context.Guild.GetRole(ulong.Parse(publicRoles[num].RoleId)).Color);
+        thisEmbed.WithTitle(Context.Guild.GetRole(ulong.Parse(publicRoles[num].RoleId)).Name);
 
         //This will be for the previous role.
         ButtonBuilder previousRole = new ButtonBuilder().
-        WithCustomId("PreviousRole").
+        WithCustomId("PreviousRole" + number).
         WithLabel("Previous Role").
         WithStyle(ButtonStyle.Primary).
         WithDisabled(false);
@@ -134,7 +130,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         //This will be to add/remove the role.
         ButtonBuilder changeRole = new ButtonBuilder();
 
-        if(((SocketGuildUser) (Context.User)).Roles.Where(x => x.Id == ulong.Parse(thisServer.Roles[int.Parse(number)])).Count() == 0){
+        if(((SocketGuildUser) (Context.User)).Roles.Where(x => x.Id == ulong.Parse(publicRoles[num].RoleId)).Count() == 0){
             changeRole.
             WithCustomId("ChangeRole" + RoleID + '|' + number).
             WithLabel("Get role").
@@ -149,7 +145,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         }
 
         ButtonBuilder nextRole = new ButtonBuilder().
-        WithCustomId("NextRole").
+        WithCustomId("NextRole" + number).
         WithLabel("Next Role").
         WithStyle(ButtonStyle.Primary).
         WithDisabled(false);
@@ -162,13 +158,24 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         WithButton(nextRole).
         Build();
 
-        await RespondAsync(embed: finalEmbed, components: finalButtons, ephemeral: true);
-        return;
+        if(isNull == "!null"){
+            await DeferAsync();
+            await ((IComponentInteraction) Context.Interaction).ModifyOriginalResponseAsync(x => {
+                x.Embed = finalEmbed;
+                x.Components = finalButtons;
+            });
+            return;
+        } else {
+            await RespondAsync(embed: finalEmbed, components: finalButtons, ephemeral: true);
+            return;
+        }
+
     }
 
     [ComponentInteraction("ChangeRole*|*")]
-    public async Task changeRole(string roleID, string number){
-        ServerClass thisServer = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).First();
+    async Task changeRole(string roleID, string number){
+        await DeferAsync();
+        ServerRolesClass currentRole = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString() && x.RoleId == roleID).First();
 
         //If the user has the role, then remove it.
         //Otherwise, add it to the user.
@@ -180,10 +187,10 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
 
         //The embed will just have the role name, the description, and the image.
         EmbedBuilder thisEmbed = new EmbedBuilder().
-        WithDescription(thisServer.RoleDescriptions[int.Parse(number)]).
-        WithImageUrl(thisServer.RoleImages[int.Parse(number)]).
-        WithColor(HexToRGB(thisServer.RoleColors[int.Parse(number)])).
-        WithTitle(Context.Guild.GetRole(ulong.Parse(thisServer.Roles[int.Parse(number)])).Name);
+        WithDescription(currentRole.RoleDescription).
+        WithImageUrl(currentRole.RoleImage).
+        WithColor(Context.Guild.GetRole(ulong.Parse(currentRole.RoleId)).Color).
+        WithTitle(Context.Guild.GetRole(ulong.Parse(currentRole.RoleId)).Name);
 
         //This will be for the previous role.
         ButtonBuilder previousRole = new ButtonBuilder().
@@ -197,7 +204,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
 
         //If the role is not equipped, then prompt the user to get the role.
         //Otherwise, prompt the user to remove the role. 
-        if(((SocketGuildUser) (Context.User)).Roles.Where(x => x.Id == ulong.Parse(thisServer.Roles[int.Parse(number)])).Count() == 0){
+        if(((SocketGuildUser) (Context.User)).Roles.Where(x => x.Id == ulong.Parse(currentRole.RoleId)).Count() == 0){
             changeRole.
             WithCustomId("ChangeRole" + roleID + '|' + number).
             WithLabel("Get role").
@@ -233,4 +240,146 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         return;
     }
 
+    [ComponentInteraction("PreviousRole*")]
+    async Task previousRole(string number){
+        int thisNumber = int.Parse(number);
+        int roleCount = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString()).Count();
+
+        if(thisNumber == 0){
+            await getRoles("!null", (roleCount - 1).ToString());
+        } else {
+            await getRoles("!null", (thisNumber - 1).ToString());
+        }
+    }
+
+    [ComponentInteraction("NextRole*")]
+    async Task nextRole(string number){
+        int thisNumber = int.Parse(number);
+        int roleCount = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).Count();
+
+        if(thisNumber == roleCount - 1){
+            await getRoles("!null", "0");
+        } else {
+            await getRoles("!null", (thisNumber + 1).ToString());
+        }
+    }
+
+    [ComponentInteraction("AddRole")]
+    async Task addRole(){
+        await RespondWithModalAsync<RoleModal>("RolesAddRoleHandler");
+    }
+
+    [ModalInteraction("RolesAddRoleHandler")]
+    async Task addRoleHandler(RoleModal input){
+        List<ServerRolesClass> theseRoles = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString()).ToList();
+        //Check to see if the role ID is valid.
+        ServerRolesClass thisRole = new ServerRolesClass();
+        if(!Context.Guild.Roles.Any(x => x.Id.ToString() == input.ID)){
+            string[] apologies = {
+                "It seems that `" + Context.Guild.Name + "` does not have a role with the id of `" + input.ID + "`.",
+                "Please double check the role ID you sent me. `" + input.ID + "` is not a valid role ID here.",
+                "Excuse me " + Context.User.GlobalName + ", but the ID you have provided does not exist in `" + Context.Guild.Name + "`.",
+                "Apologies, however there is no role with the ID you have provided here. Please, double check it for me?"
+            };
+
+            await RespondAsync(Global.picker(apologies) + Global.lastStatement(), ephemeral: true);
+            return;
+        }
+        
+        //With the provided information, create the role.
+        thisRole.RoleId = input.ID;
+        thisRole.RoleDescription = input.Description;
+        thisRole.RoleImage = input.ThumbNailUrl;
+
+        theseRoles.Add(thisRole);
+
+        eventDB.SaveChanges();
+
+        await RespondAsync("done", ephemeral: true);
+
+    }
+
+    [ComponentInteraction("ViewRole")]
+    async Task viewRoles(){
+        await getRoles("null", "null");
+    }
+
+    [ComponentInteraction("RemoveRole")]
+    async Task removeRoles(){
+        if(eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString()).Count() == 0){
+            string[] apologies = {
+                ""
+            };
+
+            await RespondAsync(Global.picker(apologies) + Global.lastStatement(), ephemeral: true);
+
+        }
+
+        string[] greetings = {
+            "Hello " + Context.User.GlobalName + ". Which roles are being purged from public access?",
+            "Which roles will no longer be publicly accessible in `" + Context.Guild.Name + "`?",
+            "I've been notified of your request to have some roles removed from public access, yes?",
+            "Good day " + Context.User.GlobalName + ", I see you're wanting to have some roles severed from public access."
+        };
+
+        List<ServerRolesClass> theseRoles = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString()).ToList();
+        int itemCount = 0;
+
+        SelectMenuBuilder thisMenu = new SelectMenuBuilder().
+        WithCustomId("RemoveRoleHandler").
+        WithMinValues(1).
+        WithPlaceholder("Which roles are you wanting to remove?");
+
+        //Add all public server roles
+        for(int i = 0; i < theseRoles.Count(); i++){
+            thisMenu.AddOption(Context.Guild.GetRole(ulong.Parse(theseRoles[i].RoleId)).Name, theseRoles[i].RoleId);
+            itemCount++;
+        }
+
+        thisMenu.WithMaxValues(itemCount);
+
+        MessageComponent finalMenu = new ComponentBuilder().
+        WithSelectMenu(thisMenu).
+        Build();
+
+        await RespondAsync(Global.picker(greetings), components: finalMenu, ephemeral: true);
+
+    }
+
+    [ComponentInteraction("RemoveRoleHandler")]
+    async Task removeRolesHandler(string[] roles){
+        if(roles.Length == 1){
+            string[] removal = {
+                "I have gone ahead and removed " + Context.Guild.GetRole(ulong.Parse(roles[0])).Name + " from public access.",
+                "All is done, " + Context.Guild.GetRole(ulong.Parse(roles[0])).Name + " is no longer publicly available in `" + Context.Guild.Name + "`.",
+                "Alright, the selected role has been removed from the list of roles I may give out."
+            };
+
+            eventDB.ServerRoles.Remove(eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString() && x.RoleId == roles[0]).First());
+            eventDB.SaveChanges();
+
+            await RespondAsync(Global.picker(removal) + Global.lastStatement(), ephemeral: true);
+
+        } else {
+            string[] removal = {
+                "Greetings, I've gona ahead and removed the " + roles.Length + " roles you had requested to be removed.",
+                "Good day " + Context.User.GlobalName + ", the selected roles have been removed.",
+                "All " + roles.Length + " have been removed from my pool. Please be sure to let the users know."
+            };
+
+            for(int i = 0; i < roles.Length; i++){
+                eventDB.ServerRoles.Remove(eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString() && x.RoleId == roles[i]).First());
+            }
+
+            eventDB.SaveChanges();
+
+            await RespondAsync(Global.picker(removal) + Global.lastStatement(), ephemeral: true);
+
+        }
+    }
+
+    [ComponentInteraction("EditRole")]
+    async Task editRoleHandler(){
+        await RespondAsync("This feature is not currently implemented. Nag GodsAperture to implement it.", ephemeral: true);
+    }
 }

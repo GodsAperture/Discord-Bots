@@ -17,7 +17,7 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
         public string Title => "Submit a role ID";
         [RequiredInput(true)]
         [InputLabel("Role ID")]
-        [ModalTextInput("Rold ID", TextInputStyle.Short, placeholder: "ex: 1160082367675912243")]
+        [ModalTextInput("Role ID", TextInputStyle.Short, placeholder: "ex: 1160082367675912243")]
         public string ID { get; set; } = "";
     }
 
@@ -45,10 +45,6 @@ public class GuildEventClass : InteractionModuleBase<SocketInteractionContext>{
                 GuildId = Context.Guild.Id.ToString(),
                 EventId = [],
                 HostRoles = [],
-                Roles = [],
-                RoleImages = [],
-                RoleDescriptions = [],
-                RoleColors = []
             });
 
             eventDB.SaveChanges();

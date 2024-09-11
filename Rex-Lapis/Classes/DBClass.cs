@@ -38,10 +38,14 @@ namespace RexLapis.Database{
         public List<string> EventId { get; set; } = new List<string>();
         public List<string> HostRoles { get; set; } = new List<string>();
         public List<string> DefaultUserRoles { get; set; } = new List<string>();
-        public List<string> Roles { get; set; } = new List<string>();
-        public List<string> RoleImages { get; set; } = new List<string>();
-        public List<string> RoleDescriptions { get; set; } = new List<string>();
-        public List<string> RoleColors { get; set; } = new List<string>();
+    }
+
+    public partial class ServerRolesClass{
+        [Key]
+        public string GuildId { get; set; } = "";
+        public string RoleId { get; set; } = "";
+        public string RoleImage { get; set; } = "";
+        public string RoleDescription { get; set; } = "";
     }
 
     public partial class CurrentEventsClass{
@@ -63,6 +67,7 @@ namespace RexLapis.Database{
         public virtual DbSet<GenshinIdClass> GenshinInfo { get; set; }
         public virtual DbSet<ServerClass> Server { get; set;}
         public virtual DbSet<CurrentEventsClass> CurrentEvents { get; set; }
+        public virtual DbSet<ServerRolesClass> ServerRoles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
@@ -74,6 +79,7 @@ namespace RexLapis.Database{
             modelBuilder.Entity<GenshinIdClass>().ToTable("GenshinId");
             modelBuilder.Entity<ServerClass>().ToTable("Server");
             modelBuilder.Entity<CurrentEventsClass>().ToTable("CurrentEvents");
+            modelBuilder.Entity<ServerRolesClass>().ToTable("ServerRoles");
         }
 
     }

@@ -23,7 +23,7 @@ public class HelpClass : InteractionModuleBase<SocketInteractionContext>{
 
         MessageComponent finalMenu = new ComponentBuilder().WithSelectMenu(thisMenu).Build();
 
-        await RespondAsync(components: finalMenu, ephemeral: true);
+        await RespondAsync(":egg:",components: finalMenu, ephemeral: true);
 
     }
 
