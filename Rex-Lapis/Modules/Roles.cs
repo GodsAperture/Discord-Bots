@@ -271,7 +271,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
 
     [ModalInteraction("RolesAddRoleHandler")]
     async Task addRoleHandler(RoleModal input){
-        List<ServerRolesClass> theseRoles = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString()).ToList();
+        IQueryable<ServerRolesClass> theseRoles = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString());
         //Check to see if the role ID is valid.
         ServerRolesClass thisRole = new ServerRolesClass();
         if(!Context.Guild.Roles.Any(x => x.Id.ToString() == input.ID)){
@@ -287,11 +287,12 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         }
         
         //With the provided information, create the role.
+        thisRole.GuildId = Context.Guild.Id.ToString();
         thisRole.RoleId = input.ID;
         thisRole.RoleDescription = input.Description;
         thisRole.RoleImage = input.ThumbNailUrl;
 
-        theseRoles.Add(thisRole);
+        eventDB.ServerRoles.Add(thisRole);
 
         eventDB.SaveChanges();
 
