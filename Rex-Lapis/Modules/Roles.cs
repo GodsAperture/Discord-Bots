@@ -109,7 +109,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
             number = "0";
         }
 
-        string RoleID = publicRoles[0].RoleId;
+        string RoleID = publicRoles[int.Parse(number)].RoleId;
         int num = int.Parse(number);
 
         //The embed will just have the role name, the description, the image, and use the role color.
@@ -132,13 +132,13 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
 
         if(((SocketGuildUser) (Context.User)).Roles.Where(x => x.Id == ulong.Parse(publicRoles[num].RoleId)).Count() == 0){
             changeRole.
-            WithCustomId("ChangeRole" + RoleID + '|' + number).
+            WithCustomId("ChangeRole" + RoleID).
             WithLabel("Get role").
             WithStyle(ButtonStyle.Success).
             WithDisabled(false);
         } else {
             changeRole.
-            WithCustomId("ChangeRole" + RoleID + '|' + number).
+            WithCustomId("ChangeRole" + RoleID).
             WithLabel("Remove role").
             WithStyle(ButtonStyle.Danger).
             WithDisabled(false);
@@ -172,8 +172,8 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
 
     }
 
-    [ComponentInteraction("ChangeRole*|*")]
-    async Task changeRole(string roleID, string number){
+    [ComponentInteraction("ChangeRole*")]
+    async Task changeRole(string roleID){
         await DeferAsync();
         ServerRolesClass currentRole = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString() && x.RoleId == roleID).First();
 
@@ -206,13 +206,13 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         //Otherwise, prompt the user to remove the role. 
         if(((SocketGuildUser) (Context.User)).Roles.Where(x => x.Id == ulong.Parse(currentRole.RoleId)).Count() == 0){
             changeRole.
-            WithCustomId("ChangeRole" + roleID + '|' + number).
+            WithCustomId("ChangeRole" + roleID).
             WithLabel("Get role").
             WithStyle(ButtonStyle.Success).
             WithDisabled(false);
         } else {
             changeRole.
-            WithCustomId("ChangeRole" + roleID + '|' + number).
+            WithCustomId("ChangeRole" + roleID).
             WithLabel("Remove role").
             WithStyle(ButtonStyle.Danger).
             WithDisabled(false);
@@ -255,7 +255,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
     [ComponentInteraction("NextRole*")]
     async Task nextRole(string number){
         int thisNumber = int.Parse(number);
-        int roleCount = eventDB.Server.Where(x => x.GuildId == Context.Guild.Id.ToString()).Count();
+        int roleCount = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString()).Count();
 
         if(thisNumber == roleCount - 1){
             await getRoles("!null", "0");
