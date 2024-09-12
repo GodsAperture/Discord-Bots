@@ -112,8 +112,6 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         string RoleID = publicRoles[int.Parse(number)].RoleId;
         int num = int.Parse(number);
 
-        Console.WriteLine(num);
-
         //The embed will just have the role name, the description, the image, and use the role color.
         EmbedBuilder thisEmbed = new EmbedBuilder();
         thisEmbed.WithFooter((num + 1) + " of " + publicRoles.Count());
