@@ -112,6 +112,8 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         string RoleID = publicRoles[int.Parse(number)].RoleId;
         int num = int.Parse(number);
 
+        Console.WriteLine(num);
+
         //The embed will just have the role name, the description, the image, and use the role color.
         EmbedBuilder thisEmbed = new EmbedBuilder();
         thisEmbed.WithFooter((num + 1) + " of " + publicRoles.Count());
@@ -175,7 +177,18 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
     [ComponentInteraction("ChangeRole*")]
     async Task changeRole(string roleID){
         await DeferAsync();
+        IQueryable<ServerRolesClass> allRoles = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString());
         ServerRolesClass currentRole = eventDB.ServerRoles.Where(x => x.GuildId == Context.Guild.Id.ToString() && x.RoleId == roleID).First();
+
+        int roleNum = 0;
+
+        //Find where in the IQueryable the role exists.
+        for(int i = 0; i < allRoles.Count(); i++){
+            if(allRoles.ElementAt(i).RoleId == roleID){
+                roleNum = i;
+                break;
+            }
+        }
 
         //If the user has the role, then remove it.
         //Otherwise, add it to the user.
@@ -194,7 +207,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
 
         //This will be for the previous role.
         ButtonBuilder previousRole = new ButtonBuilder().
-        WithCustomId("PreviousRole").
+        WithCustomId("PreviousRole" + roleNum).
         WithLabel("Previous Role").
         WithStyle(ButtonStyle.Primary).
         WithDisabled(false);
@@ -219,7 +232,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         }
 
         ButtonBuilder nextRole = new ButtonBuilder().
-        WithCustomId("NextRole").
+        WithCustomId("NextRole" + roleNum).
         WithLabel("Next Role").
         WithStyle(ButtonStyle.Primary).
         WithDisabled(false);
