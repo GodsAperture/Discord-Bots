@@ -199,8 +199,9 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         }
 
         //The embed will just have the role name, the description, and the image.
-        EmbedBuilder thisEmbed = new EmbedBuilder().
-        WithDescription(currentRole.RoleDescription).
+        EmbedBuilder thisEmbed = new EmbedBuilder();
+        thisEmbed.WithFooter((roleNum + 1) + " of " + allRoles.Count());
+        thisEmbed.WithDescription(currentRole.RoleDescription).
         WithImageUrl(currentRole.RoleImage).
         WithColor(Context.Guild.GetRole(ulong.Parse(currentRole.RoleId)).Color).
         WithTitle(Context.Guild.GetRole(ulong.Parse(currentRole.RoleId)).Name);

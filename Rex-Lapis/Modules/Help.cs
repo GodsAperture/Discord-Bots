@@ -17,6 +17,7 @@ public class HelpClass : InteractionModuleBase<SocketInteractionContext>{
         thisMenu.AddOption("Event", "Events", "Create, delete, update, and announce mock events.");
         thisMenu.AddOption("Random", "Random", "Pick up to four random characters you have registered.");
         thisMenu.AddOption("Register", "Register", "Associate a Genshin UID with your Discord account.");
+        thisMenu.AddOption("Roles", "Roles", "Rex Lapis can add and remove publicly accessible roles.\n\nRoles may also be added or removed at any time by anyone who has the manageRoles permission.");
         thisMenu.AddOption("Travel", "Travel", "Rex Lapis prompts the user with a journey.");
         thisMenu.AddOption("Version", "Version", "Tells the user the current version and most recent updates.");
         thisMenu.AddOption("Bugs/Betas/Suggestions", "Other", "This will send you a link to the server for support.");
@@ -77,6 +78,12 @@ public class HelpClass : InteractionModuleBase<SocketInteractionContext>{
         if(input == "Register"){
             string ending = Global.picker(End);
             string statement = "```In order to be able to use various commands provided by Rex Lapis, you must first register a Genshin UID.\nOnce you have given Rex Lapis a UID, it will be associated with your Discord account. You may register more than one Genshin UID with your Discord account.```";
+            await ((IComponentInteraction) Context.Interaction).ModifyOriginalResponseAsync(x => x.Content = statement + ending);
+            return;
+        }
+        if(input == "Roles"){
+            string ending = Global.picker(End);
+            string statement = "```Users may have roles added or removed by Rex Lapis. The roles that Rex Lapis can give or take must be manually assigned to him.```";
             await ((IComponentInteraction) Context.Interaction).ModifyOriginalResponseAsync(x => x.Content = statement + ending);
             return;
         }
