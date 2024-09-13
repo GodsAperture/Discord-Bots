@@ -9,14 +9,16 @@ public class DiscordBotService : IHostedService
     private readonly IConfiguration _config;
     private readonly ILogger _logger;
     private readonly InteractionHandler _interactionHandler;
+    private readonly UserJoinedHandler _userHandler;
 
-    public DiscordBotService(DiscordSocketClient client, InteractionService interactions, IConfiguration config, ILogger<DiscordBotService> logger, InteractionHandler interactionHandler)
+    public DiscordBotService(DiscordSocketClient client, InteractionService interactions, IConfiguration config, ILogger<DiscordBotService> logger, InteractionHandler interactionHandler, UserJoinedHandler userHandler)
     {
         _client = client;
         _interactions = interactions;
         _config = config;
         _logger = logger;
         _interactionHandler = interactionHandler;
+        _userHandler = userHandler;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -27,6 +29,8 @@ public class DiscordBotService : IHostedService
         _interactions.Log += LogAsync;
 
         await _interactionHandler.InitializeAsync();
+
+        await _userHandler.Initialize();
 
         await _client.LoginAsync(TokenType.Bot, _config["Secrets:Discord"]);
 

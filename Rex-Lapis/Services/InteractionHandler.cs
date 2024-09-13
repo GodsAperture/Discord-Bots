@@ -56,7 +56,7 @@ public class InteractionHandler
             case InteractionCommandError.UnmetPrecondition:
                 _logger.LogInformation($"Unmet precondition - {result.Error}");
                 break;
-
+            
             case InteractionCommandError.BadArgs:
                 _logger.LogInformation($"Unmet precondition - {result.Error}");
                 break;

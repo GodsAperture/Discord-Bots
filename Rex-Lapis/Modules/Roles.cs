@@ -297,6 +297,29 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
             await RespondAsync(Global.picker(apologies) + Global.lastStatement(), ephemeral: true);
             return;
         }
+
+        if(theseRoles.Any(x => x.RoleId == input.ID)){
+            string[] apologies = {
+                "It seems that the role you are trying to add has already been added.",
+                "Excuse me " + Context.User.GlobalName + ", but I already have permission to add and remove this role.",
+                "Apologies, but you cannot add the same role to my roster twice."
+            };
+
+            await RespondAsync(Global.picker(apologies) + Global.lastStatement(), ephemeral: true);
+            return;
+        }
+
+        string[] success = {
+            "The `" + Context.Guild.GetRole(ulong.Parse(thisRole.RoleId)).Name + "` role has been to my roster of accessible roles.",
+            "`" + Context.Guild.GetRole(ulong.Parse(thisRole.RoleId)).Name + "` may now be delegated to the users.",
+            "The following role has been successfully added to my roster of public roles."
+        };
+
+        EmbedBuilder thisEmbed = new EmbedBuilder();
+        thisEmbed.WithDescription(input.Description).
+        WithImageUrl(input.ThumbNailUrl).
+        WithColor(Context.Guild.GetRole(ulong.Parse(input.ID)).Color).
+        WithTitle(Context.Guild.GetRole(ulong.Parse(input.ID)).Name);
         
         //With the provided information, create the role.
         thisRole.GuildId = Context.Guild.Id.ToString();
@@ -308,7 +331,7 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
 
         eventDB.SaveChanges();
 
-        await RespondAsync("done", ephemeral: true);
+        await RespondAsync(Global.picker(success) + Global.lastStatement(), embed: thisEmbed.Build(), ephemeral: true);
 
     }
 

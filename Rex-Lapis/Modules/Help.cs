@@ -17,7 +17,7 @@ public class HelpClass : InteractionModuleBase<SocketInteractionContext>{
         thisMenu.AddOption("Event", "Events", "Create, delete, update, and announce mock events.");
         thisMenu.AddOption("Random", "Random", "Pick up to four random characters you have registered.");
         thisMenu.AddOption("Register", "Register", "Associate a Genshin UID with your Discord account.");
-        thisMenu.AddOption("Roles", "Roles", "Rex Lapis can add and remove publicly accessible roles.\n\nRoles may also be added or removed at any time by anyone who has the manageRoles permission.");
+        thisMenu.AddOption("Roles", "Roles", "Rex Lapis can add and remove publicly accessible roles.");
         thisMenu.AddOption("Travel", "Travel", "Rex Lapis prompts the user with a journey.");
         thisMenu.AddOption("Version", "Version", "Tells the user the current version and most recent updates.");
         thisMenu.AddOption("Bugs/Betas/Suggestions", "Other", "This will send you a link to the server for support.");

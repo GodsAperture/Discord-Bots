@@ -48,18 +48,15 @@ DiscordSocketClient client = new DiscordSocketClient(
     builder.ConfigureServices((host, services) =>{
 
         services.AddLogging(options => options.AddSerilog(loggerConfig, dispose: true));
-
         services.AddSingleton(client);
-
         services.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>(), new InteractionServiceConfig()
         {
             LogLevel = LogSeverity.Info
         }));
 
         services.AddSingleton<InteractionHandler>();
-
+        services.AddSingleton<UserJoinedHandler>();
         services.AddHostedService<DiscordBotService>();
-
         services.AddDbContext<DBClass>();
 
         });
