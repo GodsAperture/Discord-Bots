@@ -310,8 +310,8 @@ public class RolesClass : InteractionModuleBase<SocketInteractionContext>{
         }
 
         string[] success = {
-            "The `" + Context.Guild.GetRole(ulong.Parse(thisRole.RoleId)).Name + "` role has been to my roster of accessible roles.",
-            "`" + Context.Guild.GetRole(ulong.Parse(thisRole.RoleId)).Name + "` may now be delegated to the users.",
+            "The `" + Context.Guild.GetRole(ulong.Parse(input.ID)).Name + "` role has been to my roster of accessible roles.",
+            "`" + Context.Guild.GetRole(ulong.Parse(input.ID)).Name + "` may now be delegated to the users.",
             "The following role has been successfully added to my roster of public roles."
         };
 
