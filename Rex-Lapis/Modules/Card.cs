@@ -1,18 +1,20 @@
 public class CardClass : InteractionModuleBase<SocketInteractionContext>{
-    [SlashCommand("card", "Rex Lapis gives you your daily card.")]
+    [SlashCommand("card", "Rex Lapis gives you your daily cards.")]
     public async Task cardMethod(){
         CounterClass.cardCount++;
         Random number = new Random((int) Context.User.Id + (int) (DateTime.Today - DateTime.MinValue).TotalDays);
         ulong UID = Context.User.Id;
 
         string[] creatures = [
-            "hilichurls", 
             "slimes",
-            "fungi",
             "specters",
+            "hilichurls", 
+            "fungi",
+            "mekas",
             "crabs",
             "seals",
             "seahorses",
+            "whopperflowers",
             "fatui",
             "treasure hoarders",
             "ruin machinery",
@@ -29,7 +31,9 @@ public class CardClass : InteractionModuleBase<SocketInteractionContext>{
             "Liyue",
             "Inazuma",
             "Sumeru",
-            "Fontaine"
+            "Fontaine",
+            "Natlan",
+            "Nod-Krai"
         ];
 
         string[] cards = [
@@ -40,10 +44,11 @@ public class CardClass : InteractionModuleBase<SocketInteractionContext>{
             "You should use a character you haven't played with in a while.",
             "A boss rush to test your skills can give a rewarding victory.",
             "Today is a very good day to head out and catch some fish in " + locations[number.Next(0, locations.Length)] + ".",
-            "I would think going out to fight some " + creatures[number.Next(0, creatures.Length)] + " would make for a good time today.",
+            "I would think that going out to fight some " + creatures[number.Next(0, creatures.Length)] + " would make for a good time today.",
             "Maybe a game or two of TCG with a friend will be entertaining.",
             "A challenge sounds good, an Abyss run sounds like a rather amusing time.",
             "A little theater wouldn't hurt, why not go for the Imaginarium Theater today?",
+            "Today is a fight for your pride; it is time for Stygian Onslaught!",
             "Perhaps we should take some time to mine in " + locations[number.Next(0, locations.Length)] + ". The ores would serve us well in the future.",
             "It might be a good idea to gather some wood from the trees in " + locations[number.Next(0, locations.Length)] + ". We could make some nice furniture with it, after all.",
             "Maybe today would be a good time to invest in a benched character.",

@@ -1,4 +1,5 @@
-//This has been last updated v.4.8    
+//This has been last updated v.6.4   
+
 public class TravelClass : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("travel", "Rex Lapis prompts the user with a journey.")]
@@ -24,7 +25,9 @@ public class TravelClass : InteractionModuleBase<SocketInteractionContext>{
         Location[] SumeruForest = {ArdraviValley, AshavanRealm, AvidyaForest, LokapalaJungle, LostNursery, Vanarana, VissudhaField};
         Location[] SumeruDesert = {DesertOfHadramaveth, HypostyleDesert, LandOfLowerSetekh, LandOfUpperSetekh, GavirehLajavard, RealmOfFarakhkert};
         Location[] Fontaine = {BelleauRegion, BerylRegion, CourtOfFontaine, ErinnyesForest, FRI, LiffeyRegion, MorteRegion};
-        Location[][] AllLocations = {Inazuma, Monstadt, Liyue, SumeruForest, SumeruDesert, Fontaine};
+        Location[] Natlan = {AncientSacredMountain, Atocpan, BasinOfFlames, CoatepecMountain, EasybreezeHolidayResort, Ochkanatlan, QuahuacanCliff, TequemecanValley, TezcatepetoncoRange, ToyacSprings};
+        Location[] NodKrai = {AshveilPeak, HiisiIsland, LempoIsle, PahaIsle, VoidseaOutlook, WavechaserPlain};
+        Location[][] AllLocations = {Inazuma, Monstadt, Liyue, SumeruForest, SumeruDesert, Fontaine, Natlan, NodKrai};
 
 
         //Determine out starting region, such as Sumeru, Fontaine, etc.
@@ -401,5 +404,118 @@ public class TravelClass : InteractionModuleBase<SocketInteractionContext>{
         ["Lumidouce Bell", "Rainbow Rose", "Romaritime Flower", "Spring of the First Dewdrop"]
         );
 
+//Natlan
 
+    Location AncientSacredMountain = 
+        new Location("Natlan",
+        "Ancient Sacred Mounation",
+        ["Chamber of Deliberation", "Esoteric Arrays", "Flame-Melding Ritual Grounds", "Heart of Force Inversion", "Pseudostar Pedestal", "Ruined Armament Workshop", "Sea of Shifting Sentience", "Summoning Hall"],
+        []
+        );
+
+    Location Atocpan = 
+        new Location("Natlan",
+        "Atocpan",
+        ["Collective of Plenty", "Ancient Mountain Path", "Fallingstar Fields", "Remnants of Tetenaco", "Skyfire Circlet"],
+        []
+        );
+
+    Location BasinOfFlames = 
+        new Location("Natlan",
+        "Atocpan",
+        ["Huitztli Hill", "Stadium of the Sacred Flame"],
+        []
+        );
+
+    Location CoatepecMountain =
+        new Location("Natlan",
+        "Coatepec Mountain",
+        ["Scions of the Canopy", "Ancestral Temple", "Firethief's Secret Isle", "Teticpan Peak"],
+        []
+        );
+
+    Location EasybreezeHolidayResort = 
+        new Location("Natlan",
+        "Easybreeze Holidary Resort",
+        ["Brewblossom Stores", "Castle Joquiratto", "Colorfall Cave", "Colorfall Cliffs", "Concealed Land of Enigmas", "Easybreeze Market", "Guiztli Ridge", "Huha Hill", "Tete Isle", "Villa Guiztli", "Wavey Bay"],
+        []
+        );
+
+    Location Ochkanatlan =
+        new Location("Natlan",
+        "Ochkanatlan",
+        ["Ashflow Street", "Core of Chu'ulel", "Cradle of Fleeting Dreams", "Furnace of Fiery Embers", "Isle of Tozoz", "Nursery of Nightmares", "Old Core of Chu'ulel", "Throne of the Primal Fire", "Vision Serpent's Sanctum", "Vucub Caquix Tower", "Well of Seven Flames"],
+        []
+        );
+
+    Location QuahuacanCliff =
+        new Location("Natlan",
+        "Quahuacan Cliff",
+        ["Flower-Feather Clan", "Malinalco Grotto"],
+        []
+        );
+
+    Location TequemecanValley =
+        new Location("Naltan",
+        "Tequemecan Valley",
+        ["Children of Echoes", "Sulfurous Veins", "Tepeacac Rise"],
+        []
+        );
+
+    Location TezcatepetoncoRange = 
+        new Location("Natlan",
+        "Tezcatepetonco Range",
+        ["Master of the Night-Wind", "Tecoloapan Bay"],
+        []
+        );
+
+    Location ToyacSprings =
+        new Location("Natlan",
+        "Toyac Springs",
+        ["People of the Springs", "Ameyalco Waters"],
+        []
+        );
+
+//NodKrai
+    Location AshveilPeak = 
+        new Location("Nod-Krai",
+        "Ashveil Peak",
+        ["Cliffwatch Camp", "Kipumaki Cliff", "Special Territory Research Institute"],
+        []
+        );
+
+    Location HiisiIsland = 
+        new Location("Nod-Krai",
+        "Hiisi Island",
+        ["Frostmoon Enclanve", "Light-Bathed Platform", "Silvermoon Hall"],
+        []
+        );
+
+    Location LempoIsle =
+        new Location("Nod-Krai",
+        "Lempo Isle",
+        ["Barrowmoss Barrens", "Blue Amber Lake", "Clink-Clank Krumkake Craftshop", "Eye of Kratti", "Nasha Town", "Nothing Passage", "Starsand Shoal"],
+        []
+        );
+
+    Location PahaIsle = 
+        new Location("Nod-Krai",
+        "Paha Isle",
+        ["Final Night Cemetery", "Kuuvahki Experimental Design Bureau"],
+        []
+        );
+
+    Location VoidseaOutlook = 
+        new Location("Nod-Krai",
+        "Lempo Isle",
+        ["Dreadshade Mire", "Piramida"],
+        []
+        );
+
+    Location WavechaserPlain =
+        new Location("Nod-Krai",
+        "Wavechaser Plain",
+        ["Amsvartnir", "Favonius Keep", "Pillar of Embla", "Wing of Keres"],
+        []
+        );
 }

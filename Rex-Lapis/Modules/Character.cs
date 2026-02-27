@@ -74,7 +74,7 @@ public class CharacterClass : InteractionModuleBase<SocketInteractionContext>{
             "Excuse me " + Context.User.GlobalName + ", but you haven't registered with us before.",
             "Ahem, " + Context.User.GlobalName + ", it seems you haven't registered any accounts.",
             "Pardon me " + Context.User.GlobalName + ", but you have no accounts with the Adventurer's Guild.",
-            "There seems to be a mistake " + Context.User.GlobalName + ", you haven't added any accounts to our data base."
+            "There seems to be a mistake " + Context.User.GlobalName + ", you haven't added any accounts to our data base.",
         };
 
         //If the user hasn't registered any accounts, they'll be prompted to register.
