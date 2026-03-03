@@ -1,6 +1,3 @@
-using System.Configuration;
-using Serilog.Sinks.SystemConsole.Themes;
-
 public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
     public static string[] bossList = {
         "Anemo Hypostasis",
@@ -32,7 +29,14 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
         "Millenial Pearl Seahorse",
         "Prototype Cal. Breguet",
         "Hydro Tulpa",
-        "Statue of Marble and Brass"
+        "Statue of Marble and Brass",
+        "Holawaqa Ngoubou",
+        "Kongamato",
+        "Secret Source Automaton: Configuration Device",
+        "Tenebrous Papilla",
+        "Warward Heretic Spiritspeaker",
+        "Lava Dragon Statue",
+        "Secret Source Automaton: Overseer Device"
     };
 
     public static string[] trounceList = {
@@ -45,33 +49,42 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
         "Everlasting Lord of Arcane Wisdom",
         "Guardian of Apep's Oasis",
         "All-Devouring Narwhal",
-        "The Knave"
+        "The Knave",
+        "Lord of Eroded Primal Fire",
+        "The Game Before the Gate",
+        "The Doctor"
     };
 
     [SlashCommand("boss", "The user is prompted with a set of bosses to fight.")]
     public async Task bossRushMethod(string? integer = null){
         CounterClass.bossCount++;
+        const int MAX_INTEGER = 10;
 
         //First part of the response.
         string[] beginning = [
-            "I see you're quite eager for a set of trials. Try these:",
+            "I see you're quite eager for a set of trials" + ", " + Context.User.GlobalName + ". Try these:",
             "A day to be remembered would be challenging:",
-            "A mountainous trial to overcome would be to face off against:"
+            "A monumentous trial to overcome would be to face off against:",
+            "After you and your brothers in arms have feasted and made merry, go challenge these:",
+            Context.User.GlobalName + ", why not try combatting these:"
         ];
 
         string first = Global.picker(beginning);
         
         //If the user does not provide a non-zero non-negative integer, then they'll get multiple bosses.
+        //This case defaults to being three sequences.
         if(integer == null){
         string bosses = "```";
-            bosses += "\n- ";
-            bosses += Global.picker(bossList) + ", ";
-            bosses += Global.picker(bossList) + ", ";
-            bosses += Global.picker(bossList) + ", ";
+            for(int i = 0; i < 3; i++){
+                bosses += "\n- ";
+                bosses += Global.picker(bossList) + ", ";
+                bosses += Global.picker(bossList) + ", ";
+                bosses += Global.picker(bossList) + ", ";
 
-            string finalBoss = Global.picker(trounceList);
+                bosses += Global.picker(trounceList);
+            }
 
-            await RespondAsync(first + bosses + finalBoss + "```" + Global.lastStatement(), ephemeral: true);
+            await RespondAsync(first + bosses + "```" + Global.lastStatement(), ephemeral: true);
 
         } else {
 
@@ -81,7 +94,8 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
                     string[] negativeResponse = {
                         "Ummm...you can't request a negative amount of bosses to fight.",
                         "You do realize, you cannot battle a negative amount of any enemy, yes?",
-                        "Surely this was a mistake, you seemed to have requested " + integer + " bosses to fight, correct??"
+                        "Surely this was a mistake, you seemed to have requested " + value + " bosses to fight, correct??",
+                        "Perhaps you've had too much osmanthus wine. No one is capable of fighting \"" + value + "\" bosses."
                     };
 
                     await RespondAsync(Global.picker(negativeResponse), ephemeral: true);
@@ -92,9 +106,10 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
                 if(value == 0){
                     string[] zeroResponse = {
                         "Congratulations, you've already completed the challenge by doing nothing.",
-                        "Ahem, you cannot be serious, zero bosses?? You don't seem very ambitious.",
+                        "Ahem, you cannot be serious. Zero bosses?? You don't seem very ambitious.",
                         "I thought you adventurers were all willing to face all challenges and overcome all obstacles, isn't that right??",
-                        "Zero bosses down means zero personal progress. You won't grow doing nothing."
+                        "Zero bosses down means zero personal progress. You won't grow doing nothing.",
+                        "Perhaps have a *little* more ambition than saying you wish to challenge *zero* bosses."
                     };
 
                     await RespondAsync(Global.picker(zeroResponse), ephemeral: true);
@@ -102,7 +117,7 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
 
                 }
                 //Meh, fuck it, unnecessary if statement to make it look nice.
-                if(value > 0 & value <= 6){
+                if(value > 0 & value <= MAX_INTEGER){
                     //The number of bosses will always be a multiple of the integer provided.
                     //The number of normal bosses is always a multiple of three.
                     //The number of trounce bosses is always the amount provided by the `integer`.
@@ -122,11 +137,11 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
                     //If the user is too ambitious, the bot will decline. This is to prevent self DDoSing, and to prevent user self spam.
                     string[] tooManyResponse = {
                         "While ambition is a good thing, you'll probably get yourself killed fighting this many sequences...",
-                        "Ahem, are you sure you can fight this many sequences in a row without growing weary? Choose 6 or less sequences.",
-                        "Even the mightiest of archons could not face off this many enemies without trouble. Try 6 or fewer sequences.",
-                        integer + " sequences? Goodness me, you sound like you wish to fight the world. Please, pick a number from 1 to 6.",
+                        "Ahem, are you sure you can fight this many sequences in a row without growing weary? Choose " + MAX_INTEGER + " or less sequences.",
+                        "Even the mightiest of archons could not face off this many enemies without trouble. Try " + MAX_INTEGER + " or fewer sequences.",
+                        value + " sequences? Goodness me, you sound like you wish to fight the world. Please, pick a number from 1 to " + MAX_INTEGER + ".",
                         "My my, that troublesome one, Childe, would love your sense of challenge. However, you should not fight everyone and everything like he does. Instead, try 6 or fewer at a time.",
-                        integer + "? " + integer + " *sequnences*?? You cannot be serious, you want to fight " + (value * 4) + " bosses, one after the other, and with no reprieve?\nChoose a smaller amount. Preferrably less than or equal to 6 sequences."
+                        value + "? " + value + " *sequnences*?? You cannot be serious, you want to fight " + (value * 4) + " bosses, one after the other, and with no reprieve?\nChoose a smaller amount. Preferrably less than or equal to " + MAX_INTEGER + " sequences."
                     };
 
                     await RespondAsync(Global.picker(tooManyResponse), ephemeral: true);
@@ -135,10 +150,10 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
             } else {
                 //In case the user mis-types or gives something that isn't a number whatsoever, this will tell them.
                 string[] nonNumber = {
-                    "Excuse me, but I was expecting a number, like 4.",
-                    "This must be a mistake " + Context.User.GlobalName + ", but you seem to have given a non-number for a prompt that requires a number.",
+                    "Excuse me, but I was expecting a number, like 4. Not " + value + ".",
+                    "This must be a mistake " + Context.User.GlobalName + ", but you seem to have given a non-number for a prompt that requires a *number*.",
                     "Excuse me, but '*" + integer + "*' isn't an acceptable numerical response.",
-                    "*" + integer + "*" + " might represent a number in some sort of mathematics, but it is not an acceptable number for this.",
+                    "*" + integer + "*" + " might represent a number in some sort of other language, but it is not an acceptable number for this.",
                     "How does one fight *" + integer + "* bosses? Please, provide a reasonable number."
                 };
 

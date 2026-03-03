@@ -90,7 +90,7 @@ public class HelpClass : InteractionModuleBase<SocketInteractionContext>{
         if(input == "Travel")
         {
             string ending = Global.picker(End);
-            string statement = "```Whenever you find there's nothing else to do in Genshin, maybe you and some friends can take a journery across Teyvat together. Rex Lapis will always pick a route that won't require teleporting. This slash command assumes you have Enkanomiya and the Chasm both fully unlocked.```";
+            string statement = "```Whenever you find there's nothing else to do in Genshin, maybe you and some friends can take a journery across Teyvat together. Rex Lapis will always pick a route that won't require teleporting. This slash command assumes you have Enkanomiya, the Chasm, and Ancient Sacred Mounation fully unlocked.```";
             await ((IComponentInteraction) Context.Interaction).ModifyOriginalResponseAsync(x => x.Content = statement + ending);
             return;
         }

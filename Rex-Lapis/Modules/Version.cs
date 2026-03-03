@@ -4,7 +4,7 @@ public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
     [SlashCommand("version", "Tells the user the current version and most recent updates.")]
     public async Task versionMethod(){
         CounterClass.versionCount++;
-        string currentVersion = "1.4";
+        string currentVersion = "1.5";
         //The list of all greetings along with a singly picked greeting.
         string[] greetings = {
             "Greetings " + Context.User.GlobalName + ", I am currently in version `" + currentVersion + "`.\n",
@@ -31,7 +31,7 @@ public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
             "- /help no longer deletes the drop down menu.",
             "- /character no longer requires a minimum of one character per drop down menu.",
             "- Made some minor tweaks to the rules of /boss."
-        };
+        }
 
         version 1.3:
         {
@@ -42,12 +42,21 @@ public class VersionClass : InteractionModuleBase<SocketInteractionContext>{
         version 1.4:
         {
             "- Added the `/event` command",
-        };
+        }
+
+        version 1.5:
+        {
+            "- Updated the `/boss` command.",
+            "- Updated the `/travel` command.",
+            "- Updated the `/card` command."
+        }
 
         */
 
         string[] allUpdates = {
-            "- Added the `/event` command",
+            "- Updated the `/boss` command.",
+            "- Updated the `/travel` command.",
+            "- Updated the `/card` command."
         };
 
         //Final bit of information.
