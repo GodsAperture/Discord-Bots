@@ -57,7 +57,6 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
 
     [SlashCommand("boss", "The user is prompted with a set of bosses to fight.")]
     public async Task bossRushMethod(string? integer = null){
-        CounterClass.bossCount++;
         const int MAX_INTEGER = 10;
 
         //First part of the response.
@@ -77,6 +76,8 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
         string bosses = "```";
             for(int i = 0; i < 3; i++){
                 bosses += "\n- ";
+                bosses += Global.picker(bossList) + ", ";
+                bosses += Global.picker(bossList) + ", ";
                 bosses += Global.picker(bossList) + ", ";
                 bosses += Global.picker(bossList) + ", ";
                 bosses += Global.picker(bossList) + ", ";
@@ -124,6 +125,8 @@ public class BossRushClass : InteractionModuleBase<SocketInteractionContext>{
                     string bosses = "```";
                     for(int i = 0; i < value; i++){
                         bosses += "\n- ";
+                        bosses += Global.picker(bossList) + ", ";
+                        bosses += Global.picker(bossList) + ", ";
                         bosses += Global.picker(bossList) + ", ";
                         bosses += Global.picker(bossList) + ", ";
                         bosses += Global.picker(bossList) + ", ";
